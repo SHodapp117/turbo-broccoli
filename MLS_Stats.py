@@ -18,15 +18,107 @@ SETUP:
    python MLS_Stats.py
 
 REQUIREMENTS:
-    pip install pandas lxml html5lib selenium webdriver-manager
+    pip install pandas lxml html5lib selenium webdriver-manager beautifulsoup4
 """
 
 import pandas as pd
 import time
 from io import StringIO
 
+import os
+from bs4 import BeautifulSoup
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+
+# Create data folder if it doesn't exist
+DATA_FOLDER = "data"
+os.makedirs(DATA_FOLDER, exist_ok=True)
+
+
+def extract_glossary_from_html(html: str) -> dict:
+    """
+    Extract column abbreviations and their full names from FBref HTML.
+    FBref has a glossary section with format: "Abbrev -- Full Name Description"
+    We want to map the abbreviation to the full name (the part right after --).
+    """
+    soup = BeautifulSoup(html, 'lxml')
+    glossary = {}
+    
+    # Method 1: Look for glossary in the page text
+    # The glossary format is: "Abbrev -- Full Name Description"
+    page_text = soup.get_text()
+    
+    # Find all lines with " -- " pattern
+    import re
+    # Match pattern: word(s) -- Full Name (possibly more words)
+    # We want the abbreviation and the first part after --
+    pattern = r'([A-Za-z0-9+/]+)\s*--\s*([^\n]+)'
+    matches = re.findall(pattern, page_text)
+    
+    for abbrev, full_description in matches:
+        abbrev = abbrev.strip()
+        full_description = full_description.strip()
+        
+        # The full name is typically the first few words before a longer description
+        # Often it's repeated, like "Shot-Creating Actions Shot-Creating Actions The two..."
+        # So we take the first meaningful phrase
+        
+        # Split by common description starters
+        for splitter in [' The ', ' Minimum ', ' Given ', ' Position ', ' This is ', ' First,']:
+            if splitter in full_description:
+                full_description = full_description.split(splitter)[0]
+                break
+        
+        # Clean up - remove duplicate phrases
+        words = full_description.split()
+        if len(words) >= 4:
+            mid = len(words) // 2
+            first_half = ' '.join(words[:mid])
+            second_half = ' '.join(words[mid:2*mid])
+            if first_half == second_half:
+                full_description = first_half
+        
+        full_description = full_description.strip()
+        
+        if abbrev and full_description and len(abbrev) < 20:
+            glossary[abbrev] = full_description
+    
+    # Method 2: Also check data-tip attributes on table headers as backup
+    for th in soup.find_all('th'):
+        abbrev = th.get_text(strip=True)
+        full_name = None
+        
+        if th.get('data-tip'):
+            full_name = th.get('data-tip')
+        elif th.get('aria-label'):
+            full_name = th.get('aria-label')
+        else:
+            for child in th.find_all(['span', 'a']):
+                if child.get('data-tip'):
+                    full_name = child.get('data-tip')
+                    break
+        
+        if abbrev and full_name and abbrev != full_name and abbrev not in glossary:
+            if '<' in full_name:
+                full_name = BeautifulSoup(full_name, 'lxml').get_text(strip=True)
+            glossary[abbrev] = full_name.strip()
+    
+    return glossary
+
+
+def rename_columns_with_glossary(df, glossary: dict):
+    """Rename DataFrame columns using the glossary mapping."""
+    new_columns = []
+    for col in df.columns:
+        col_str = str(col)
+        # Check if this column has a full name in the glossary
+        if col_str in glossary:
+            new_columns.append(glossary[col_str])
+        else:
+            new_columns.append(col_str)
+    df.columns = new_columns
+    return df
 
 
 def scrape_from_existing_browser(output_file: str = "mls_player_stats.csv") -> pd.DataFrame:
@@ -103,8 +195,19 @@ def scrape_from_existing_browser(output_file: str = "mls_player_stats.csv") -> p
             print("Make sure you clicked the 'Show' button on the page!")
             return None
         
+        # Extract glossary from HTML and rename columns
+        print("Extracting column glossary from page...")
+        glossary = extract_glossary_from_html(html)
+        if glossary:
+            print(f"  Found {len(glossary)} column definitions")
+        
         # Clean the dataframe
         df = clean_player_stats(player_stats_df)
+        
+        # Rename columns with full names
+        if glossary:
+            df = rename_columns_with_glossary(df, glossary)
+            print("  Renamed columns to full names")
         
         # Save to CSV
         df.to_csv(output_file, index=False)
@@ -165,19 +268,35 @@ if __name__ == "__main__":
     print()
     print("4. Pass any Cloudflare checks")
     print("5. Click 'Show' to reveal the Player Standard Stats table")
-    print("6. Once you can see the player stats, press Enter here...")
+    print()
+    print(f"All CSV files will be saved to: ./{DATA_FOLDER}/")
     print()
     
-    input("Press Enter when ready...")
-    
-    df = scrape_from_existing_browser(output_file="mls_player_stats.csv")
-    
-    if df is not None:
-        print("\n" + "="*60)
-        print("Sample of scraped data:")
-        print("="*60)
-        print(df.head(10).to_string())
-        print(f"\nTotal players: {len(df)}")
-        print(f"Columns: {list(df.columns)}")
-    else:
-        print("\nFailed to scrape data.")
+    while True:
+        print("-"*60)
+        input("Press Enter when ready to scrape (or Ctrl+C to quit)...")
+        
+        # Ask for output filename
+        print()
+        output_file = input("Output filename (default: mls_player_stats.csv): ").strip()
+        if not output_file:
+            output_file = "mls_player_stats.csv"
+        if not output_file.endswith('.csv'):
+            output_file += '.csv'
+        
+        # Save to data folder
+        output_path = os.path.join(DATA_FOLDER, output_file)
+        
+        df = scrape_from_existing_browser(output_file=output_path)
+        
+        if df is not None:
+            print("\n" + "="*60)
+            print("Sample of scraped data:")
+            print("="*60)
+            print(df.head(10).to_string())
+            print(f"\nTotal players: {len(df)}")
+            print(f"Columns: {list(df.columns)}")
+        else:
+            print("\nFailed to scrape data.")
+        
+        print("\n\nReady for next scrape. Navigate to a new page and click 'Show'.") 
