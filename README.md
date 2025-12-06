@@ -10,6 +10,9 @@ This project scrapes and analyzes Major League Soccer (MLS) player performance s
 
 - **Web Scraper** ([MLS_Stats.py](MLS_Stats.py)): Scrapes player stats from FBref using Selenium
 - **PDF Parser** ([parse_roster_pdfs.py](parse_roster_pdfs.py)): Extracts structured roster data from MLS Club Roster Profile PDFs
+- **Stats Processor** ([Stats_Processor.py](Stats_Processor.py)): Consolidates stats from multiple categories into unified dataframes
+- **SCD2 Storage** ([SCD2_Storage.py](SCD2_Storage.py)): Memory-efficient storage with SCD Type 2 pattern for S3 and ML workflows
+- **Player Clustering** ([Player_Clustering.py](Player_Clustering.py)): DBSCAN clustering to discover player archetypes
 - **Historical Data**: Maintains datasets for 2023-2025 seasons
 
 ## Data Sources
@@ -67,12 +70,84 @@ python parse_roster_pdfs.py
 - contract_thru, option_years, category
 - roster_model, team_gam_2025
 
+### Processing Stats Data
+
+```bash
+# Consolidate all stats categories into unified dataframes
+python Stats_Processor.py
+```
+
+**Output Files:**
+- `data/processed/2023_all_stats.csv` (855 players, 197 columns)
+- `data/processed/2024_all_stats.csv` (819 players, 197 columns)
+- `data/processed/2025_all_stats.csv` (882 players, 197 columns)
+- `data/processed/all_seasons_combined.csv` (2,556 total records)
+
+**Combines these stat categories:**
+- Standard (Goals, Assists, Cards, Minutes, xG)
+- Passing (Completion %, Progressive Passes, Key Passes)
+- Shooting (Shots, Shots on Target, Conversion Rate)
+- Possession (Touches, Dribbles, Carries)
+- Defensive Actions (Tackles, Blocks, Interceptions)
+- Goal/Shot Creation (Shot-Creating Actions, Goal-Creating Actions)
+- Performance (Box-level performance metrics)
+- Goalkeeping (Saves, Clean Sheets, PSxG)
+
+### Creating SCD2 Storage (S3 & ML Ready)
+
+```bash
+# Create memory-efficient SCD Type 2 structure with Parquet format
+python SCD2_Storage.py
+```
+
+**Output Structure:**
+- `data/scd2/parquet/player_dimension.parquet` (56 KB - SCD2 temporal tracking)
+- `data/scd2/parquet/stats_fact/season=YYYY/` (1.3 MB - Partitioned by season)
+- `data/scd2/ml_current_season_2025.parquet` (467 KB - ML-ready denormalized view)
+- `data/scd2/ml_timeseries_all_seasons.parquet` (850 KB - Time series features)
+
+**Benefits:**
+- **3.6x compression** (Parquet vs in-memory)
+- **Columnar storage** for efficient ML feature loading
+- **SCD Type 2** tracks player changes over time (team transfers, position changes)
+- **S3-optimized** with partitioning for cost-effective queries
+- **ML-ready** pre-built views for training
+
+See [ML_WORKFLOW.md](ML_WORKFLOW.md) for detailed ML usage examples.
+
+### Player Clustering (DBSCAN)
+
+```bash
+# Discover player archetypes using density-based clustering
+python Player_Clustering.py
+```
+
+**Output:**
+- `data/clustering/clustered_players_2025.csv` (669 players with cluster assignments)
+- `data/clustering/clusters_outfield.png` (Visualization: all outfield players)
+- `data/clustering/clusters_forwards.png` (Visualization: forwards only)
+- `data/clustering/clusters_midfielders.png` (Visualization: midfielders only)
+- `data/clustering/eps_optimization.png` (Parameter tuning graph)
+
+**Results:**
+- **1 major cluster** (82.7% - "typical" MLS players)
+- **116 outliers** (17.3% - elite performers and specialists)
+- **37.7% of Designated Players** are statistical outliers
+- Position-specific clustering reveals archetype patterns
+
+See [CLUSTERING_ANALYSIS.md](CLUSTERING_ANALYSIS.md) for detailed results and insights.
+
 ## Project Structure
 
 ```
 turbo-broccoli/
 ├── MLS_Stats.py              # FBref web scraper
 ├── parse_roster_pdfs.py      # PDF roster parser
+├── Stats_Processor.py        # Stats consolidation processor
+├── SCD2_Storage.py           # SCD Type 2 storage manager
+├── Player_Clustering.py      # DBSCAN clustering analysis
+├── ML_WORKFLOW.md            # ML usage guide
+├── CLUSTERING_ANALYSIS.md    # Clustering results & insights
 ├── 2023_PayData.py          # (Empty - future salary analysis)
 ├── requirements.txt          # Python dependencies
 ├── data/                     # CSV data directory
@@ -81,7 +156,27 @@ turbo-broccoli/
 │   ├── 2025_*.csv           # 2025 season stats (7 files)
 │   ├── mls_salaries_all_classified.csv
 │   ├── 2024_roster_profiles_parsed.csv
-│   └── 2025_roster_profiles_parsed.csv
+│   ├── 2025_roster_profiles_parsed.csv
+│   ├── processed/           # Processed unified stats
+│   │   ├── 2023_all_stats.csv
+│   │   ├── 2024_all_stats.csv
+│   │   ├── 2025_all_stats.csv
+│   │   └── all_seasons_combined.csv
+│   ├── scd2/                # SCD2 optimized storage
+│   │   ├── parquet/
+│   │   │   ├── player_dimension.parquet
+│   │   │   └── stats_fact/
+│   │   │       ├── season=2023/
+│   │   │       ├── season=2024/
+│   │   │       └── season=2025/
+│   │   ├── ml_current_season_2025.parquet
+│   │   └── ml_timeseries_all_seasons.parquet
+│   └── clustering/          # Clustering analysis
+│       ├── clustered_players_2025.csv
+│       ├── clusters_outfield.png
+│       ├── clusters_forwards.png
+│       ├── clusters_midfielders.png
+│       └── eps_optimization.png
 └── venv/                     # Virtual environment
 ```
 
@@ -90,6 +185,8 @@ turbo-broccoli/
 - **Web Scraping**: selenium, beautifulsoup4, requests, lxml, html5lib
 - **Data Processing**: pandas, numpy
 - **PDF Parsing**: pdfplumber
+- **Storage & ML**: pyarrow (Parquet format), scikit-learn
+- **Visualization**: matplotlib, seaborn
 - **Utilities**: python-dateutil, pytz, python-dotenv
 
 ## Statistics Summary (2025 Roster)
