@@ -1,0 +1,521 @@
+FBref_Name,Position,Alternative_Positions
+Lionel Messi,RW,"ST, CAM, RM"
+Olivier Giroud,ST,
+Luis Suárez,ST,
+Luciano Acosta,CAM,LM
+Sergio Busquets,CDM,"CM, CB"
+Jordi Alba,LB,
+Denis Bouanga,LW,"ST, LM"
+Emil Forsberg,CAM,LM
+Carles Gil,CAM,RM
+Hugo Lloris,GK,
+Hany Mukhtar,CAM,ST
+Cristian Arango,ST,CAM
+Roman Bürki,GK,
+Ryan Gauld,LW,"ST, RW, LM"
+Lorenzo Insigne,LW,"CAM, LM"
+Luis Muriel,ST,
+Federico Bernardeschi,RW,"RM, CAM"
+Evander,CAM,CM
+Jonathan Rodríguez,ST,LM
+Hugo Cuypers,ST,
+João Paulo Mior,CDM,CM
+Petar Musa,ST,
+Andre Blake,GK,
+Tomás Chancalay,LM,"RM, LW"
+Cristian Espinoza,RM,RW
+Jesús Ferreira,ST,CAM
+Dániel Gazdag,CAM,ST
+Marcel Hartel,CM,CAM
+Robin Lod,RM,"CM, CDM, RW"
+Eduard Löwen,CM,"CDM, CAM"
+Darlington Nagbe,CM,CDM
+Joseph Paintsil,RM,RW
+Ezequiel Ponce,ST,
+Matías Rojas,RW,"RM, LM"
+Diego Rossi,CAM,LM
+Kai Wagner,LB,LM
+Walker Zimmerman,CB,
+Liel Abada,RW,"RM, LW"
+Eduard Atuesta,CM,CDM
+Christian Benteke,ST,
+Pavel Bucha,CDM,"CM, CAM"
+Andrés Cubas,CDM,CM
+Pedro De la Vega,RW,"LW, LM, RM"
+Yeimar Gómez Andrade,CB,
+Klauss,ST,
+Mateusz Klich,CM,"CDM, LW"
+Hernán López Muñoz,CAM,"RM, LM"
+Pep Biel,CAM,ST
+Djordje Mihailovic,CAM,CM
+Amahl Pellegrino,LW,LM
+Federico Redondo,CM,CDM
+Ashley Westwood,CDM,CM
+Diego Chará,CDM,CM
+Maxime Crépeau,GK,
+Mikkel Desler,RB,
+Dejan Joveljić,ST,
+Nicolás Lodeiro,CAM,"CM, RM"
+Matt Miazga,CB,
+Lewis Morgan,ST,"LM, CAM"
+Obinna Nwobodo,CDM,CM
+Luca Orellano,LM,"RW, RM, LW"
+Joaquín Pereyra,LM,"RM, LW"
+Tim Ream,CB,
+Cristian Roldan,RM,"CM, CAM, RW"
+Albert Rusnák,CAM,"CDM, CM"
+Ilie Sánchez,CDM,"CB, CM"
+Zack Steffen,GK,
+Erik Sviatchenko,CB,
+Yohei Takaoka,GK,
+Mikael Uhre,ST,
+Luis Abram,CB,LB
+Gastón Brugman,CM,CDM
+Osman Bukari,RW,"ST, RM"
+Maxime Chanot,CB,
+Carlos Coronel,GK,
+Artur,CDM,CM
+Daniel,GK,
+Jack Elliott,CB,
+Stefan Frei,GK,
+Pedro Gallese,GK,
+Jakob Glesnes,CB,
+Julian Gressel,RM,"CM, RW"
+DeJuan Jones,LB,RB
+Damir Kreilach,ST,CAM
+Luca Langoni,RM,"ST, RW"
+David Martínez,CB,LB
+Josef Martínez,ST,
+Joakim Nilsson,CB,
+Martín Ojeda,CAM,"RM, LM"
+Jonathan Osorio,CM,"CDM, LM"
+Keaton Parks,CDM,CM
+Nemanja Radoja,CM,CDM
+Miles Robinson,CB,
+Diego Rubio,ST,CAM
+Johnny Russell,RW,RM
+Dániel Sallói,LW,LM
+Marcelo Weigandt,RB,
+Miki Yamane,RB,
+Maya Yoshida,CB,
+Alhassan Yusuf,CDM,CM
+Kellyn Acosta,CM,CDM
+Brandon Bye,RB,
+Roman Celentano,GK,
+Diogo Gonçalves,CM,
+Vitor Costa,LB,
+Marky Delgado,CDM,CM
+Jeremy Ebobisse,ST,
+Aaron Herrera,RB,"RM, CB"
+Ryan Hollingshead,RB,LB
+Richie Laryea,RB,"LB, RM"
+Tim Leibold,LB,LM
+Saba Lobzhanidze,RW,"RM, LM"
+Thiago Martins,CB,
+Kamal Miller,CB,
+Felipe Mora,ST,
+Santiago Moreno,RM,"LM, RW"
+Jordan Morris,ST,"LM, RM"
+Maarten Paes,GK,
+Nelson Palacio,CM,CDM
+David Schnegg,LB,
+Dayne St. Clair,GK,
+Sam Surridge,ST,
+Robert Taylor,LW,"LM, RM"
+Cedric Teuchert,ST,CAM
+Erik Thommy,CM,"CAM, RM"
+Nouhou Tolo,LB,CB
+Bruno Wilson,CB,
+Brian White,ST,
+Hannes Wolf,RM,"CAM, LM, RW"
+Kelvin Yeboah,ST,
+DeAndre Yedlin,RB,RM
+Paul Arriola,RM,"RW, LW"
+Tomás Avilés,CB,CDM
+Chidozie Awaziem,CB,
+Tai Baribo,ST,
+Cole Bassett,CAM,"CM, CDM"
+Alejandro Bedoya,CM,CDM
+Claudio Bravo,LB,
+David Brekalo,CB,
+Drake Callender,GK,
+Leonardo Campana,ST,
+Dylan Chambost,CM,"RM, CAM"
+Ramiro Enrique,ST,LW
+Diego Fagúndez,LM,"RM, CAM, LW"
+Aníbal Godoy,CDM,CM
+Robin Jansson,CB,
+Danley Jean-Jacques,CDM,CM
+Sean Johnson,GK,
+Yuya Kubo,CM,"ST, RM"
+Kevin Long,CB,
+Aaron Long,CB,
+Dominik Marczuk,RM,RW
+Sean Nealis,CB,
+Franco Negri,LB,LM
+Braian Ojeda,CDM,CM
+Sergi Palencia,RB,"RM, LB"
+Samuel Piette,CDM,CM
+Matt Polster,CDM,"CM, RB"
+Keegan Rosenberry,RB,"CB, RM"
+Pablo Ruíz,CDM,CM
+Patrick Schulte,GK,
+Bartosz Slisz,CM,CDM
+Oleksandr Svatok,CB,
+Ranko Veselinović,CB,
+Joe Willis,GK,
+Sam Adekugbe,LB,LM
+Rasmus Alm,RM,"RW, LW"
+Antony,LM,"RM, LW"
+Iván Angulo,LM,"LW, RM"
+César Araujo,CDM,CM
+Amine Bassi,CAM,"LW, RW"
+Michael Boxall,CB,
+Tyler Boyd,LM,"RM, RW, LW"
+Andrew Brody,RB,LB
+Nathan Byrne,RB,LB
+Justen Glad,CB,
+Bongokuhle Hlongwane,RM,"LM, RW"
+Kei Kamara,ST,
+Henry Kessler,CB,
+Mathías Laborda,CB,RB
+Daniel Lovitz,LB,CB
+Andreas Maxsø,CB,
+Steven Moreira,CB,RB
+Agustin Ojeda,RW,"LW, RM"
+Cristhian Paredes,CDM,CM
+Tim Parker,CB,
+Jonathan Bamba,CB,
+Fafà Picault,LM,"RM, ST, LW"
+Alex Roldan,RB,RM
+Eddie Segura,CB,RB
+Brayan Vera,CB,
+Sam Vines,LB,
+Giacomo Vrioni,ST,
+Eryk Williamson,CDM,CM
+Jackson Yueill,CM,CDM
+Júnior Urso,CDM,CM
+Malte Amundsen,CB,"LB, LM"
+Lucas Bartlett,CB,
+Tristan Blackmon,CB,RB
+Chris Brady,GK,
+Xande Silva,LW,"ST, LM"
+Emeka Eneli,CDM,"RB, CM"
+Franco Escobar,RB,LB
+Andrew Farrell,CB,
+Julián Fernández,RW,"RM, LW"
+Nick Hagglund,CB,
+Jannes Horn,CB,LB
+Anderson Julio,ST,"LM, RM"
+Kristijan Kahlina,GK,
+Mark-Anthony Kaye,CM,CDM
+Sebastian Kowalczyk,CAM,"ST, CM"
+Brooks Lennon,RB,RM
+Diego Luna,LM,"CAM, LW"
+Adilson Malanda,CB,
+Olivier Mbaizo,RB,RM
+Jack McGlynn,CM,
+Alfredo Morales,CDM,"CM, CB"
+Alex Muyl,RM,"RB, CM, RW"
+Jáder Obrian,RM,"RW, LM"
+Kwadwo Opoku,ST,RW
+Raoul Petretta,LB,CB
+Paxton Pomykal,CM,"CDM, CAM"
+Christian Ramirez,ST,CAM
+Andrés Reyes,CB,
+Birk Risa,CB,
+Connor Ronan,CM,"CDM, CAM"
+Pedro Amador,LB,
+Jonathan Sirois,GK,
+Brad Stuver,GK,
+Jamal Thiaré,ST,
+Wil Trapp,CDM,CM
+Kerwin Vargas,LW,"RM, RW, LM"
+Yaw Yeboah,LM,"RM, CAM, LW"
+Léo Chú,LM,LW
+Julián Aude,LB,CDM
+David Ayala,CDM,CM
+Brandt Bronico,CM,CDM
+Julio Cascante,CB,
+Edwin Cerrillo,CDM,CM
+Daniel,CB,CDM
+Yevhen Cheberko,CB,
+Show,CDM,CM
+Djibril Diani,CDM,CM
+Bryce Duke,CAM,CM
+Kyle Duncan,RB,"RM, LB"
+Derrick Etienne,LM,"RM, LW"
+Marco Farfan,LB,LM
+Mohamed Farsi,RM,"RB, RW"
+Matt Freese,GK,
+Brian Gutiérrez,LM,"CAM, RM, LW"
+Andrew Gutman,LB,
+Nathan Harriel,RB,CB
+Kyle Hiebert,CB,LB
+Aljaž Ivačič,GK,
+Randall Leal,CAM,"CM, RM"
+Nick Lima,RB,LB
+Matthew Longstaff,CM,
+Alonso Martínez,RM,"LM, RW"
+John McCarthy,GK,
+Duncan McGuire,ST,
+Edwin Mosquera,RM,"LM, RW"
+Gabriel Pirani,CAM,CM
+Jackson Ragen,CB,
+Rodrigues,CB,
+Sergio Santos Gomes,ST,
+Jacob Shaffelburg,LM,"ST, LW"
+Samuel Shashoua,ST,"CAM, RM"
+Jared Stroud,RM,"LM, RW"
+Indiana Vassilev,CM,"CAM, RM"
+Pedro Vite,CM,CAM
+Joel Waterman,CB,
+Henry Wingo,CB,RB
+Sean Zawadzki,CB,"CM, LM"
+Lalas Abubakar,CB,
+Corey Baird,ST,RM
+Emmanuel Boateng,LM,"RM, LW"
+Lachlan Brook,RM,RW
+George Campbell,CB,
+Jake Davis,RB,
+Hassani Dotson,CDM,"LM, CM"
+Chris Durkin,CM,"CDM, RM"
+Raheem Edwards,LB,LM
+Lawrence Ennali,LM,"RM, LW"
+Omir Fernandez,RM,"CAM, LM, RW"
+Deybi Flores,CDM,CM
+Brad Guzan,GK,
+Maren Haile-Selassie,RM,"LM, CAM, RW"
+Cameron Harper,RM,"RB, LM, RW"
+Fabian Herbers,RM,"CM, CDM, RW"
+Jeong Sangbin,ST,"RW, CAM"
+Derrick Jones,CDM,"CM, CB"
+Alexandros Katranis,LB,
+Lassi Lappalainen,LM,"LB, LW"
+Jasper Löffelsend,CDM,CM
+J.T. Marcinkowski,GK,
+David Martínez,RM,"CAM, LM, RW"
+Zac McGraw,CB,
+Juan David Mosquera,RB,RM
+Ian Murphy,CB,
+Tristan Muyumba,CDM,CM
+Rafael Navarro,ST,
+Jalen Neal,CB,
+Tomáš Ostrák,RM,"LM, CAM, RW"
+Daniel Pereira,CM,CDM
+Alvas Powell,RB,RM
+Memo Rodriguez,LM,"CM, RM, LW"
+Kyle Smith,RB,LB
+Finn Surman,CB,
+Mason Toye,ST,
+Bjørn Inge Utvik,CB,
+Derrick Williams,CB,
+Patrick Yazbek,CDM,CM
+Dario Župarić,CB,
+Patrick Agyemang,ST,
+Dominique Badji,ST,RM
+David Bingham,GK,
+Rafael Santos,LB,
+Caden Clark,CAM,"CM, LM"
+Daniel Edelman,CDM,CM
+Noah Eile,CB,
+Tayvon Gray,RB,CB
+Ian Harkes,CM,
+Sebastien Ibeagha,CB,
+Kevin Kelsy,ST,
+Ariel Lassiter,LM,"RM, ST, LW"
+Danny Leyva,CM,CDM
+Sebastian Lletget,CM,RM
+Jack Maher,CB,
+Paul Marie,RB,LB
+Logan Ndenbe,LB,
+John Nelson,LB,LM
+Édier Ocampo,RB,
+Prince Owusu,ST,
+James Pantemis,GK,
+Tom Pearce,LB,
+Andrés Perea,CDM,CM
+Mauricio Pineda,CB,CDM
+Célio Pompeu,LM,"LW, RW"
+Andrew Privett,CB,CDM
+Ryan Raposo,LM,"RM, LB, LW"
+Daniel,ST,
+Nkosi Tafari,CB,RB
+Carlos Terán,CB,RB
+Bill Tuiloma,CB,
+Tyler Wolff,LM,"LW, CM"
+Ali Ahmed,CM,RM
+Noah Allen,LB,CB
+Joshua Atencio,CDM,"CM, CB"
+Ethan Bartlow,CB,
+Tanner Beason,CB,LB
+Ben Bender,CAM,"LM, CM"
+Miguel Berry,ST,
+Sebastian Breza,GK,
+Teal Bunbury,ST,"LM, RM"
+Kevin Cabral,LM,"ST, RM, LW"
+Wikelman Carmona,RM,"CAM, LW, RW"
+Patrickson Delgado,CM,CDM
+Griffin Dorsey,RB,RM
+Jon Gallagher,RB,"LB, RM"
+Luka Gavran,GK,
+Nicholas Hagen,GK,
+Ronald Hernández,RB,RM
+Brendan Hines-Ike,CB,
+Sunusi Ibrahim,ST,CAM
+Aziel Jackson,CAM,RM
+Bernard Kamungo,RM,"RW, LM"
+Benjamin Kikanovic,LM,"LW, ST"
+Žan Kolmanič,LB,
+Theodore Ku-Dipietro,LM,"CAM, ST, LW"
+Felipe Carballo,CDM,CM
+Jimmy Maurer,GK,
+Christopher McVey,CB,"LB, RB"
+Eric Miller,RB,"CB, LB"
+Dylan Nealis,RB,"CB, RM"
+Matti Peltola,CDM,CB
+Nikola Petković,CDM,
+John Pulskamp,GK,
+Joseph Rosales,LB,"LM, CDM"
+Sigurd Rosted,CB,
+David Ruíz,CM,"CDM, RB"
+Rodrigo Schlegel,CB,
+Amar Sejdic,CM,"CAM, CDM"
+Brandon Servania,CDM,"CM, RM"
+Jack Skahan,CM,
+Brad Smith,LM,"LB, LW"
+Daniel Steres,LB,"RB, CB"
+Peter Stroud,CDM,"CM, RM"
+Iuri Tavares,LW,"LM, RM"
+Dagur Dan Þórhallsson,RB,CM
+Tomas Totland,RB,LB
+Obed Vargas,CM,"CDM, RM"
+Owen Wolff,CDM,"CM, RM"
+Joshua Yaro,CB,
+William Agada,ST,LW
+Brian Anunga,CDM,CM
+Monsef Bakrar,ST,
+Luis Barraza,GK,
+Sebastian Berhalter,CM,CDM
+Ousseni Bouda,LM,"RM, LW"
+Evan Bush,GK,
+Earl Edwards Jr.,GK,
+Kobe Franklin,RB,LB
+Jake Girdwood-Reich,CB,CDM
+Omar Gonzalez,CB,
+Belal Halbouni,CB,
+Thomas Hasal,GK,
+Mitja Ilenič,RB,RM
+Sam Junqua,LB,"CB, LM"
+Nelson Quiñones,LM,"RM, LW"
+Ryan Sailor,CB,
+Quinn Sullivan,ST,CM
+Andrew Tarbell,GK,
+Zorhan Bassong,LB,"CB, CM"
+Bode Hidalgo,RB,
+Preston Judd,ST,
+Lukas MacNaughton,CB,
+Kevin O'Toole,LB,LM
+Wyatt Omsberg,CB,
+Luca Petrasso,LB,LM
+Jacen Russell-Rowe,ST,CAM
+Khiry Shelton,ST,"RW, LW"
+Tyrese Spicer,LW,LM
+Akil Watts,RB,CDM
+Eriq Zavaleta,CB,
+Fernando Álvarez,CB,
+Tom Barlow,ST,
+Yannick Bright,CDM,CM
+Alonso Coello,CM,CAM
+Jonathan Dean,LB,LM
+C.J. dos Santos,GK,
+Dennis Gjengaar,RM,RW
+Nicksoen Gomis,CB,
+Deandre Kerr,ST,"RM, CM"
+Jahkeele Marshall-Rutty,RB,"RM, LM"
+Tsiki Ntsabeleng,CM,
+Devin Padelford,CB,LB
+Tate Schmitt,LB,LM
+Kosi Thompson,RB,"RM, CM"
+Niko Tsakiris,CAM,CM
+Robert Voloder,CB,LB
+Josh Bauer,CB,
+Simon Becher,ST,
+Giuseppe Bovalina,RB,
+Justin Haak,CB,"CDM, CM"
+Jacob Jackson,GK,
+Evan Louro,GK,
+Anthony Markanich,LB,LM
+Ralph Priso-Mbongue,CDM,CM
+Tomas Romero,GK,
+Dante Sealy,LM,"RM, LW"
+Tyger Smalls,RW,"LW, RM"
+Garrison Tubbs,CB,
+Darren Yapi,ST,
+Reed Baker-Whiting,RB,"LB, LM"
+Erik Duenas,CM,RB
+Ian Fray,CB,
+Novak Mićović,GK,
+Shakur Mohammed,LM,"CAM, LW"
+Efrain Morales,CB,
+Daniel Munie,LB,
+Tani Oluwaseyi,ST,RW
+Philip Quinton,CB,
+Rodrigues,LW,"CAM, RW, LM"
+Jules-Anthony Vilsaint,ST,
+Cody Baker,RB,LB
+Luke Brennan,LW,"RW, LM"
+Noah Cobb,CB,
+Ronald Donkor,CM,CDM
+Serge Ngoma,RM,"ST, RW"
+Jayden Reid,LB,LM
+Strahinja Tanasijević,CB,
+Andrew Thomas,GK,
+Stephen Afrifa,ST,
+Brandon Cambridge,CM,
+Mauricio Cuevas,RB,
+Ajani Fortune,CM,
+Calvin Harris,LM,"RM, ST, LW"
+Malik Henry,ST,
+Oliver Larraz,CDM,
+Santi Morales,CAM,
+Jacob Murrell,ST,
+Nathan Ordaz,ST,
+Paul Rothrock,RM,"LW, RW"
+Kristian Fletcher,LM,LW
+Carlos Harvey,CDM,
+Jackson Hopkins,CAM,CM
+Jack Neeley,CB,
+Logan Farrington,ST,
+Julian Gaines,RB,
+Tucker Lepley,RW,RM
+Nolan Norris,CM,CDM
+Javier Otero,GK,
+Isaiah Parente,CAM,
+Conner Antley,LB,CB
+Michael Edwards,CB,
+Taha Habroune,CAM,CM
+Jeremy Rafanello,ST,LW
+Brooklyn Raines,CM,RW
+Justin Reynolds,RB,
+Adam Beaudry,GK,
+Noel Caliskan,CM,
+Bret Halsey,RB,CM
+Stuart Hawkins,CB,
+Chris Rindov,CB,
+Jackson Travis,LB,
+Thomas Williams,CB,LB
+CJ Fodrey,ST,LW
+Tarik Scott,LM,"RM, LW"
+Gerardo Valenzuela,CAM,"ST, CM"
+Forster Ajago,ST,
+Wayne Frederick,CAM,
+Kimani Stewart-Baynes,ST,
+Stiven Jimenez,RB,CDM
+Olwethu Makhanya,CB,
+Sergio Oregel,CM,
+Jaziel Orozco,CB,
+Jonathan Shore,CM,
+Zavier Gozo,RW,"ST, RM"
+David Vazquez,LW,LM
+Markus Anderson,LW,LM

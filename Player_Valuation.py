@@ -49,81 +49,183 @@ class PlayerValuationSystem:
             with open(mapping_file, 'r') as f:
                 self.name_mapping = json.load(f)
 
-    def load_and_merge_data(self, season: int = 2025):
-        """Load stats, roster, and salary data"""
+        # Load granular position data (FC 25)
+        self.position_data = None
+        self._load_granular_positions()
 
-        print(f"Loading {season} data...")
+    def _load_granular_positions(self):
+        """Load FC 25 granular position data."""
+        position_file = self.data_dir / 'player_positions_granular.csv'
+        if position_file.exists():
+            self.position_data = pd.read_csv(position_file)
+            print(f"✓ Loaded granular positions for {len(self.position_data)} players")
+        else:
+            print("⚠️  Granular position data not found. Using FBref positions only.")
 
-        # Load processed stats
-        stats_file = self.processed_dir / f'{season}_all_stats.csv'
-        df_stats = pd.read_csv(stats_file)
-        print(f"  Stats: {len(df_stats)} players")
+    def get_player_position(self, player_name: str, fbref_position: str = None) -> Dict[str, str]:
+        """
+        Get granular position data for a player.
 
-        # Load roster data
-        roster_file = self.data_dir / f'{season}_roster_profiles_parsed.csv'
-        df_roster = pd.read_csv(roster_file)
-        print(f"  Roster: {len(df_roster)} players")
+        Returns:
+            Dict with 'granular_position', 'alternative_positions', 'position_group'
+        """
+        result = {
+            'granular_position': None,
+            'alternative_positions': None,
+            'position_group': self._simplify_position(fbref_position) if fbref_position else 'Unknown'
+        }
 
-        # Load salary data
-        salary_file = self.data_dir / 'mls_salaries_all_classified.csv'
-        df_salary = pd.read_csv(salary_file)
-        print(f"  Salary: {len(df_salary)} records")
+        # Try to find granular position
+        if self.position_data is not None:
+            match = self.position_data[self.position_data['FBref_Name'] == player_name]
+            if len(match) > 0:
+                result['granular_position'] = match.iloc[0]['Position']
+                result['alternative_positions'] = match.iloc[0]['Alternative_Positions']
 
-        # Add Season column to stats if missing
-        if 'Season' not in df_stats.columns:
-            df_stats['Season'] = season
+        return result
 
-        # Merge stats + roster
-        df_merged = df_stats.merge(
-            df_roster[['name', 'category', 'contract_thru']],
-            left_on='Player',
-            right_on='name',
-            how='left'
-        )
+    def load_and_merge_data(self, seasons: list = [2025, 2024, 2023]):
+        """
+        Load stats, roster, and salary data from multiple seasons.
 
-        # Merge with salary
-        df_salary['year_int'] = df_salary['year'].astype(int)
-        df_merged = df_merged.merge(
-            df_salary[['player', 'year_int', 'base_salary', 'compensation']],
-            left_on=['Player', 'Season'],
-            right_on=['player', 'year_int'],
-            how='left'
-        )
+        Args:
+            seasons: List of seasons to load, in priority order (most recent first)
 
-        print(f"\nMerged: {len(df_merged)} players")
-        print(f"  With salary data: {df_merged['base_salary'].notna().sum()}")
-        print(f"  With roster designation: {df_merged['category'].notna().sum()}")
+        Notes:
+            - Loads data from all specified seasons
+            - For each player, keeps only their most recent season with sufficient data
+            - Tracks which season's data is being used per player
+        """
 
-        # Feature engineering
-        df_merged = self._engineer_features(df_merged)
+        all_data = []
 
-        # Filter to players with sufficient minutes for reliable stats
-        df_merged = df_merged[df_merged['Minutes'] >= 270].copy()  # ~3 full games minimum
-        print(f"  After minutes filter (270+): {len(df_merged)} players")
+        for season in seasons:
+            print(f"\nLoading {season} data...")
 
-        self.df_master = df_merged
-        return df_merged
+            # Load processed stats
+            stats_file = self.processed_dir / f'{season}_all_stats.csv'
+            if not stats_file.exists():
+                print(f"  Stats file not found, skipping {season}")
+                continue
+
+            df_stats = pd.read_csv(stats_file)
+            print(f"  Stats: {len(df_stats)} players")
+
+            # Load roster data
+            roster_file = self.data_dir / f'{season}_roster_profiles_parsed.csv'
+            if roster_file.exists():
+                df_roster = pd.read_csv(roster_file)
+                print(f"  Roster: {len(df_roster)} players")
+            else:
+                df_roster = pd.DataFrame()  # Empty dataframe if no roster data
+                print(f"  Roster data not found")
+
+            # Load salary data
+            salary_file = self.data_dir / 'mls_salaries_all_classified.csv'
+            df_salary = pd.read_csv(salary_file)
+            print(f"  Salary: {len(df_salary)} records")
+
+            # Add Season column to stats if missing
+            if 'Season' not in df_stats.columns:
+                df_stats['Season'] = season
+
+            # Merge stats + roster
+            if not df_roster.empty:
+                df_merged = df_stats.merge(
+                    df_roster[['name', 'category', 'contract_thru']],
+                    left_on='Player',
+                    right_on='name',
+                    how='left'
+                )
+            else:
+                df_merged = df_stats.copy()
+
+            # Merge with salary
+            df_salary['year_int'] = df_salary['year'].astype(int)
+            df_merged = df_merged.merge(
+                df_salary[['player', 'year_int', 'base_salary', 'compensation']],
+                left_on=['Player', 'Season'],
+                right_on=['player', 'year_int'],
+                how='left'
+            )
+
+            print(f"  Merged: {len(df_merged)} players")
+            print(f"  With salary data: {df_merged['base_salary'].notna().sum()}")
+
+            # Feature engineering
+            df_merged = self._engineer_features(df_merged)
+
+            # Filter to players with sufficient minutes for reliable stats
+            df_merged = df_merged[df_merged['Minutes'] >= 270].copy()  # ~3 full games minimum
+            print(f"  After minutes filter (270+): {len(df_merged)} players")
+
+            all_data.append(df_merged)
+
+        # Combine all seasons
+        if not all_data:
+            raise ValueError("No data could be loaded from any season")
+
+        df_combined = pd.concat(all_data, ignore_index=True)
+        print(f"\n{'='*60}")
+        print(f"Combined data from {len(seasons)} seasons: {len(df_combined)} total records")
+
+        # For each player, keep only their most recent season with data
+        # Sort by season (descending) so most recent is first
+        df_combined = df_combined.sort_values('Season', ascending=False)
+
+        # Keep first occurrence of each player (most recent season)
+        df_combined = df_combined.drop_duplicates(subset=['Player'], keep='first')
+        print(f"Unique players (using most recent season): {len(df_combined)}")
+
+        # Add a flag to indicate which season's data is being used
+        df_combined['data_season'] = df_combined['Season']
+
+        self.df_master = df_combined
+        return df_combined
 
     def _engineer_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Create position-specific features"""
 
         print("\nEngineering features...")
 
-        # Per-90 stats
-        df['goals_per_90'] = df['Goals'] / df['90s Played90s played']
-        df['assists_per_90'] = df['Assists'] / df['90s Played90s played']
-        df['xg_per_90'] = df['xG'] / df['90s Played90s played']
+        # Note: FBref data is already in per-90 format for Goals, Assists, xG, etc.
+        # No need to divide by 90s again
+        df['goals_per_90'] = df['Goals']
+        df['assists_per_90'] = df['Assists']
+        df['xg_per_90'] = df['xG']
 
         # Performance metrics
         df['xg_overperformance'] = df['Goals'] - df['xG']
         df['progressive_actions'] = df['PrgC'] + df['PrgP']
         df['defensive_actions'] = df['Tkl'] + df['Int']
 
-        # Simplify position
+        # Simplify FBref position to groups (backup)
         df['position_group'] = df['Pos'].apply(self._simplify_position)
 
-        # Map roster designation to tiers
-        df['designation_tier'] = df['category'].apply(self._map_designation)
+        # Merge granular positions from FC 25
+        if self.position_data is not None:
+            df = df.merge(
+                self.position_data,
+                left_on='Player',
+                right_on='FBref_Name',
+                how='left'
+            )
+            # Rename columns for clarity
+            df = df.rename(columns={
+                'Position': 'granular_position',
+                'Alternative_Positions': 'alternative_positions'
+            })
+            print(f"  ✓ Merged granular positions: {df['granular_position'].notna().sum()} players have FC25 data")
+        else:
+            df['granular_position'] = None
+            df['alternative_positions'] = None
+
+        # Map roster designation to tiers (if category column exists)
+        if 'category' in df.columns:
+            df['designation_tier'] = df['category'].apply(self._map_designation)
+        else:
+            # If no roster data, set designation_tier to None
+            df['designation_tier'] = None
 
         print(f"  Created per-90 stats, overperformance, progressive/defensive actions")
 
@@ -354,17 +456,32 @@ class PlayerValuationSystem:
 
         player = player.iloc[0]
         position = player['position_group']
+        data_season = int(player['data_season']) if 'data_season' in player else 2025
 
         print(f"\n{'='*60}")
         print(f"VALUATION: {player_name}")
         print(f"{'='*60}")
-        print(f"Position: {position}")
+
+        # Display granular position if available, with position_group as backup
+        granular_pos = player.get('granular_position', None)
+        if granular_pos and pd.notna(granular_pos):
+            print(f"Position: {granular_pos} (Group: {position})")
+            alt_pos = player.get('alternative_positions', None)
+            if alt_pos and pd.notna(alt_pos):
+                print(f"Alternative Positions: {alt_pos}")
+        else:
+            print(f"Position: {position} (FBref group)")
+
         print(f"Minutes Played: {player['Minutes']:.0f}")
+        print(f"Data Season: {data_season}")
 
         result = {
             'player': player_name,
             'position': position,
+            'granular_position': player.get('granular_position', None) if pd.notna(player.get('granular_position', None)) else None,
+            'alternative_positions': player.get('alternative_positions', None) if pd.notna(player.get('alternative_positions', None)) else None,
             'minutes': player['Minutes'],
+            'data_season': data_season,
             'actual_designation': player['designation_tier'] if 'designation_tier' in player else None,
             'actual_salary': player['base_salary'] if 'base_salary' in player and pd.notna(player['base_salary']) else None
         }

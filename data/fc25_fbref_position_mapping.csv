@@ -1,0 +1,521 @@
+FC25_Name,FBref_Name,Match_Score,Position,Alternative_Positions,Team,Age,OVR
+Lionel Messi,Lionel Messi,1.0,RW,"ST, CAM, RM",Inter Miami CF,37,88
+Olivier Giroud,Olivier Giroud,1.0,ST,,LAFC,37,83
+Luis Suárez,Luis Suárez,1.0,ST,,Inter Miami CF,37,82
+Luciano Acosta,Luciano Acosta,1.0,CAM,LM,FC Cincinnati,30,81
+Sergio Busquets,Sergio Busquets,1.0,CDM,"CM, CB",Inter Miami CF,36,81
+Jordi Alba,Jordi Alba,1.0,LB,,Inter Miami CF,35,80
+Denis Bouanga,Denis Bouanga,1.0,LW,"ST, LM",LAFC,29,80
+Emil Forsberg,Emil Forsberg,1.0,CAM,LM,Red Bulls,32,79
+Carles Gil,Carles Gil,1.0,CAM,RM,New England,31,79
+Hugo Lloris,Hugo Lloris,1.0,GK,,LAFC,37,79
+Hany Mukhtar,Hany Mukhtar,1.0,CAM,ST,Nashville SC,29,79
+Cristian Arango,Cristian Arango,1.0,ST,CAM,Real Salt Lake,29,78
+Roman Bürki,Roman Bürki,1.0,GK,,St. Louis CITY SC,33,78
+Ryan Gauld,Ryan Gauld,1.0,LW,"ST, RW, LM",Whitecaps FC,28,78
+Lorenzo Insigne,Lorenzo Insigne,1.0,LW,"CAM, LM",Toronto FC,33,78
+Luis Muriel,Luis Muriel,1.0,ST,,Orlando City,33,78
+Federico Bernardeschi,Federico Bernardeschi,1.0,RW,"RM, CAM",Toronto FC,30,77
+Evander,Evander,1.0,CAM,CM,Portland Timbers,26,77
+Jonathan Rodríguez,Jonathan Rodríguez,1.0,ST,LM,Portland Timbers,31,77
+Hugo Cuypers,Hugo Cuypers,1.0,ST,,Chicago Fire FC,27,76
+João Paulo,João Paulo Mior,0.95,CDM,CM,Sounders FC,33,76
+Petar Musa,Petar Musa,1.0,ST,,FC Dallas,26,76
+Andre Blake,Andre Blake,1.0,GK,,Philadelphia,33,75
+Tomás Chancalay,Tomás Chancalay,1.0,LM,"RM, LW",New England,25,75
+Cristian Espinoza,Cristian Espinoza,1.0,RM,RW,SJ Earthquakes,29,75
+Jesus Ferreira,Jesús Ferreira,1.0,ST,CAM,FC Dallas,23,75
+Dániel Gazdag,Dániel Gazdag,1.0,CAM,ST,Philadelphia,28,75
+Marcel Hartel,Marcel Hartel,1.0,CM,CAM,St. Louis CITY SC,28,75
+Robin Lod,Robin Lod,1.0,RM,"CM, CDM, RW",Minnesota United,31,75
+Eduard Löwen,Eduard Löwen,1.0,CM,"CDM, CAM",St. Louis CITY SC,27,75
+Darlington Nagbe,Darlington Nagbe,1.0,CM,CDM,Columbus Crew,34,75
+Joseph Paintsil,Joseph Paintsil,1.0,RM,RW,LA Galaxy,26,75
+Ezequiel Ponce,Ezequiel Ponce,1.0,ST,,Houston Dynamo,27,75
+Matías Rojas,Matías Rojas,1.0,RW,"RM, LM",Inter Miami CF,28,75
+Diego Rossi,Diego Rossi,1.0,CAM,LM,Columbus Crew,26,75
+Kai Wagner,Kai Wagner,1.0,LB,LM,Philadelphia,27,75
+Walker Zimmerman,Walker Zimmerman,1.0,CB,,Nashville SC,31,75
+Liel Abada,Liel Abada,1.0,RW,"RM, LW",Charlotte FC,22,74
+Eduard Atuesta,Eduard Atuesta,1.0,CM,CDM,LAFC,27,74
+Christian Benteke,Christian Benteke,1.0,ST,,D.C. United,33,74
+Pavel Bucha,Pavel Bucha,1.0,CDM,"CM, CAM",FC Cincinnati,26,74
+Andrés Cubas,Andrés Cubas,1.0,CDM,CM,Whitecaps FC,28,74
+Pedro De la Vega,Pedro De la Vega,1.0,RW,"LW, LM, RM",Sounders FC,23,74
+Yeimar Gómez Andrade,Yeimar Gómez Andrade,1.0,CB,,Sounders FC,32,74
+Klauss,Klauss,1.0,ST,,St. Louis CITY SC,27,74
+Mateusz Klich,Mateusz Klich,1.0,CM,"CDM, LW",D.C. United,34,74
+Hernán López Muñoz,Hernán López Muñoz,1.0,CAM,"RM, LM",SJ Earthquakes,24,74
+Pep Biel,Pep Biel,1.0,CAM,ST,Charlotte FC,28,74
+Djordje Mihailovic,Djordje Mihailovic,1.0,CAM,CM,Colorado Rapids,25,74
+Amahl Pellegrino,Amahl Pellegrino,1.0,LW,LM,SJ Earthquakes,34,74
+Federico Redondo,Federico Redondo,1.0,CM,CDM,Inter Miami CF,21,74
+Ashley Westwood,Ashley Westwood,1.0,CDM,CM,Charlotte FC,34,74
+Diego Chará,Diego Chará,1.0,CDM,CM,Portland Timbers,38,73
+Maxime Crépeau,Maxime Crépeau,1.0,GK,,Portland Timbers,30,73
+Mikkel Desler,Mikkel Desler,1.0,RB,,Austin FC,29,73
+Dejan Joveljić,Dejan Joveljić,1.0,ST,,LA Galaxy,25,73
+Nicolás Lodeiro,Nicolás Lodeiro,1.0,CAM,"CM, RM",Orlando City,35,73
+Matt Miazga,Matt Miazga,1.0,CB,,FC Cincinnati,29,73
+Lewis Morgan,Lewis Morgan,1.0,ST,"LM, CAM",Red Bulls,27,73
+Obinna Nwobodo,Obinna Nwobodo,1.0,CDM,CM,FC Cincinnati,27,73
+Luca Orellano,Luca Orellano,1.0,LM,"RW, RM, LW",FC Cincinnati,24,73
+Joaquín Pereyra,Joaquín Pereyra,1.0,LM,"RM, LW",Minnesota United,25,73
+Tim Ream,Tim Ream,1.0,CB,,Charlotte FC,36,73
+Cristian Roldan,Cristian Roldan,1.0,RM,"CM, CAM, RW",Sounders FC,29,73
+Albert Rusnák,Albert Rusnák,1.0,CAM,"CDM, CM",Sounders FC,30,73
+Ilie Sánchez,Ilie Sánchez,1.0,CDM,"CB, CM",LAFC,33,73
+Zack Steffen,Zack Steffen,1.0,GK,,Colorado Rapids,29,73
+Erik Sviatchenko,Erik Sviatchenko,1.0,CB,,Houston Dynamo,32,73
+Yohei Takaoka,Yohei Takaoka,1.0,GK,,Whitecaps FC,28,73
+Mikael Uhre,Mikael Uhre,1.0,ST,,Philadelphia,29,73
+Luis Abram,Luis Abram,1.0,CB,LB,Atlanta United,28,72
+Gaston Brugman,Gastón Brugman,1.0,CM,CDM,LA Galaxy,32,72
+Osman Bukari,Osman Bukari,1.0,RW,"ST, RM",Austin FC,25,72
+Maxime Chanot,Maxime Chanot,1.0,CB,,LAFC,34,72
+Carlos Coronel,Carlos Coronel,1.0,GK,,Red Bulls,27,72
+Artur,Artur,1.0,CDM,CM,Houston Dynamo,28,72
+Daniel,Daniel,1.0,GK,,SJ Earthquakes,30,72
+Jack Elliott,Jack Elliott,1.0,CB,,Philadelphia,29,72
+Stefan Frei,Stefan Frei,1.0,GK,,Sounders FC,38,72
+Pedro Gallese,Pedro Gallese,1.0,GK,,Orlando City,34,72
+Jakob Glesnes,Jakob Glesnes,1.0,CB,,Philadelphia,30,72
+Julian Gressel,Julian Gressel,1.0,RM,"CM, RW",Inter Miami CF,30,72
+DeJuan Jones,DeJuan Jones,1.0,LB,RB,Columbus Crew,27,72
+Damir Kreilach,Damir Kreilach,1.0,ST,CAM,Whitecaps FC,35,72
+Luca Langoni,Luca Langoni,1.0,RM,"ST, RW",New England,22,72
+David Martínez,David Martínez,1.0,CB,LB,Inter Miami CF,26,72
+Josef Martínez,Josef Martínez,1.0,ST,,CF Montréal,31,72
+Joakim Nilsson,Joakim Nilsson,1.0,CB,,St. Louis CITY SC,30,72
+Martín Ojeda,Martín Ojeda,1.0,CAM,"RM, LM",Orlando City,25,72
+Jonathan Osorio,Jonathan Osorio,1.0,CM,"CDM, LM",Toronto FC,32,72
+Keaton Parks,Keaton Parks,1.0,CDM,CM,New York City FC,27,72
+Nemanja Radoja,Nemanja Radoja,1.0,CM,CDM,Sporting KC,31,72
+Miles Robinson,Miles Robinson,1.0,CB,,FC Cincinnati,27,72
+Diego Rubio,Diego Rubio,1.0,ST,CAM,Austin FC,31,72
+Johnny Russell,Johnny Russell,1.0,RW,RM,Sporting KC,34,72
+Dániel Sallói,Dániel Sallói,1.0,LW,LM,Sporting KC,28,72
+Marcelo Weigandt,Marcelo Weigandt,1.0,RB,,Inter Miami CF,24,72
+Miki Yamane,Miki Yamane,1.0,RB,,LA Galaxy,30,72
+Maya Yoshida,Maya Yoshida,1.0,CB,,LA Galaxy,36,72
+Alhassan Yusuf,Alhassan Yusuf,1.0,CDM,CM,New England,24,72
+Kellyn Acosta,Kellyn Acosta,1.0,CM,CDM,Chicago Fire FC,29,71
+Brandon Bye,Brandon Bye,1.0,RB,,New England,28,71
+Roman Celentano,Roman Celentano,1.0,GK,,FC Cincinnati,24,71
+Diogo Gonçalves,Diogo Gonçalves,1.0,CM,,Real Salt Lake,27,71
+Vítor Costa,Vitor Costa,1.0,LB,,SJ Earthquakes,30,71
+Mark Delgado,Marky Delgado,0.96,CDM,CM,LA Galaxy,29,71
+Jeremy Ebobisse,Jeremy Ebobisse,1.0,ST,,SJ Earthquakes,27,71
+Aaron Herrera,Aaron Herrera,1.0,RB,"RM, CB",D.C. United,27,71
+Ryan Hollingshead,Ryan Hollingshead,1.0,RB,LB,LAFC,33,71
+Richie Laryea,Richie Laryea,1.0,RB,"LB, RM",Toronto FC,29,71
+Tim Leibold,Tim Leibold,1.0,LB,LM,Sporting KC,30,71
+Saba Lobjanidze,Saba Lobzhanidze,0.9032258064516129,RW,"RM, LM",Atlanta United,29,71
+Thiago Martins,Thiago Martins,1.0,CB,,New York City FC,29,71
+Kamal Miller,Kamal Miller,1.0,CB,,Portland Timbers,27,71
+Felipe Mora,Felipe Mora,1.0,ST,,Portland Timbers,31,71
+Santiago Moreno,Santiago Moreno,1.0,RM,"LM, RW",Portland Timbers,24,71
+Jordan Morris,Jordan Morris,1.0,ST,"LM, RM",Sounders FC,29,71
+Maarten Paes,Maarten Paes,1.0,GK,,FC Dallas,26,71
+Nelson Palacio,Nelson Palacio,1.0,CM,CDM,Real Salt Lake,23,71
+David Schnegg,David Schnegg,1.0,LB,,D.C. United,25,71
+Dayne St. Clair,Dayne St. Clair,1.0,GK,,Minnesota United,27,71
+Sam Surridge,Sam Surridge,1.0,ST,,Nashville SC,26,71
+Robert Taylor,Robert Taylor,1.0,LW,"LM, RM",Inter Miami CF,29,71
+Cedric Teuchert,Cedric Teuchert,1.0,ST,CAM,St. Louis CITY SC,27,71
+Erik Thommy,Erik Thommy,1.0,CM,"CAM, RM",Sporting KC,30,71
+Nouhou,Nouhou Tolo,0.95,LB,CB,Sounders FC,27,71
+Bruno Wilson,Bruno Wilson,1.0,CB,,SJ Earthquakes,27,71
+Brian White,Brian White,1.0,ST,,Whitecaps FC,28,71
+Hannes Wolf,Hannes Wolf,1.0,RM,"CAM, LM, RW",New York City FC,25,71
+Kelvin Yeboah,Kelvin Yeboah,1.0,ST,,Minnesota United,24,71
+DeAndre Yedlin,DeAndre Yedlin,1.0,RB,RM,FC Cincinnati,31,71
+Paul Arriola,Paul Arriola,1.0,RM,"RW, LW",FC Dallas,29,70
+Tomás Avilés,Tomás Avilés,1.0,CB,CDM,Inter Miami CF,20,70
+Chidozie Awaziem,Chidozie Awaziem,1.0,CB,,FC Cincinnati,27,70
+Tai Baribo,Tai Baribo,1.0,ST,,Philadelphia,26,70
+Cole Bassett,Cole Bassett,1.0,CAM,"CM, CDM",Colorado Rapids,23,70
+Alejandro Bedoya,Alejandro Bedoya,1.0,CM,CDM,Philadelphia,37,70
+Claudio Bravo,Claudio Bravo,1.0,LB,,Portland Timbers,27,70
+David Brekalo,David Brekalo,1.0,CB,,Orlando City,25,70
+Drake Callender,Drake Callender,1.0,GK,,Inter Miami CF,26,70
+Leonardo Campana,Leonardo Campana,1.0,ST,,Inter Miami CF,24,70
+Dylan Chambost,Dylan Chambost,1.0,CM,"RM, CAM",Columbus Crew,27,70
+Ramiro Enrique,Ramiro Enrique,1.0,ST,LW,Orlando City,23,70
+Diego Fagundez,Diego Fagúndez,1.0,LM,"RM, CAM, LW",LA Galaxy,29,70
+Aníbal Godoy,Aníbal Godoy,1.0,CDM,CM,Nashville SC,34,70
+Robin Jansson,Robin Jansson,1.0,CB,,Orlando City,32,70
+Danley Jean Jacques,Danley Jean-Jacques,1.0,CDM,CM,Philadelphia,24,70
+Sean Johnson,Sean Johnson,1.0,GK,,Toronto FC,35,70
+Yuya Kubo,Yuya Kubo,1.0,CM,"ST, RM",FC Cincinnati,30,70
+Kevin Long,Kevin Long,1.0,CB,,Toronto FC,34,70
+Aaron Long,Aaron Long,1.0,CB,,LAFC,31,70
+Dominik Marczuk,Dominik Marczuk,1.0,RM,RW,Real Salt Lake,20,70
+Sean Nealis,Sean Nealis,1.0,CB,,Red Bulls,27,70
+Franco Negri,Franco Negri,1.0,LB,LM,Inter Miami CF,29,70
+Braian Ojeda,Braian Ojeda,1.0,CDM,CM,Real Salt Lake,24,70
+Sergi Palencia,Sergi Palencia,1.0,RB,"RM, LB",LAFC,28,70
+Samuel Piette,Samuel Piette,1.0,CDM,CM,CF Montréal,29,70
+Matt Polster,Matt Polster,1.0,CDM,"CM, RB",New England,31,70
+Keegan Rosenberry,Keegan Rosenberry,1.0,RB,"CB, RM",Colorado Rapids,30,70
+Pablo Ruiz,Pablo Ruíz,1.0,CDM,CM,Real Salt Lake,25,70
+Patrick Schulte,Patrick Schulte,1.0,GK,,Columbus Crew,23,70
+Bartosz Slisz,Bartosz Slisz,1.0,CM,CDM,Atlanta United,25,70
+Oleksandr Svatok,Oleksandr Svatok,1.0,CB,,Austin FC,29,70
+Ranko Veselinović,Ranko Veselinović,1.0,CB,,Whitecaps FC,25,70
+Joe Willis,Joe Willis,1.0,GK,,Nashville SC,36,70
+Sam Adekugbe,Sam Adekugbe,1.0,LB,LM,Whitecaps FC,29,69
+Rasmus Alm,Rasmus Alm,1.0,RM,"RW, LW",St. Louis CITY SC,29,69
+Antony,Antony,1.0,LM,"RM, LW",Portland Timbers,23,69
+Iván Angulo,Iván Angulo,1.0,LM,"LW, RM",Orlando City,25,69
+César Araújo,César Araujo,1.0,CDM,CM,Orlando City,23,69
+Amine Bassi,Amine Bassi,1.0,CAM,"LW, RW",Houston Dynamo,26,69
+Michael Boxall,Michael Boxall,1.0,CB,,Minnesota United,36,69
+Tyler Boyd,Tyler Boyd,1.0,LM,"RM, RW, LW",Nashville SC,29,69
+Andrew Brody,Andrew Brody,1.0,RB,LB,Real Salt Lake,29,69
+Nathan Byrne,Nathan Byrne,1.0,RB,LB,Charlotte FC,32,69
+Justen Glad,Justen Glad,1.0,CB,,Real Salt Lake,27,69
+Bongokuhle Hlongwane,Bongokuhle Hlongwane,1.0,RM,"LM, RW",Minnesota United,24,69
+Kei Kamara,Kei Kamara,1.0,ST,,LAFC,40,69
+Henry Kessler,Henry Kessler,1.0,CB,,St. Louis CITY SC,26,69
+Mathías Laborda,Mathías Laborda,1.0,CB,RB,Whitecaps FC,24,69
+Daniel Lovitz,Daniel Lovitz,1.0,LB,CB,Nashville SC,33,69
+Andreas Maxsø,Andreas Maxsø,1.0,CB,,Colorado Rapids,30,69
+Steven Moreira,Steven Moreira,1.0,CB,RB,Columbus Crew,30,69
+Agustín Ojeda,Agustin Ojeda,1.0,RW,"LW, RM",New York City FC,20,69
+Cristhian Paredes,Cristhian Paredes,1.0,CDM,CM,Portland Timbers,26,69
+Tim Parker,Tim Parker,1.0,CB,,New England,31,69
+Nathan,Jonathan Bamba,0.95,CB,,Sounders FC,29,69
+Fafà Picault,Fafà Picault,1.0,LM,"RM, ST, LW",Whitecaps FC,33,69
+Alex Roldan,Alex Roldan,1.0,RB,RM,Sounders FC,28,69
+Eddie Segura,Eddie Segura,1.0,CB,RB,LAFC,27,69
+Brayan Vera,Brayan Vera,1.0,CB,,Real Salt Lake,25,69
+Sam Vines,Sam Vines,1.0,LB,,Colorado Rapids,25,69
+Giacomo Vrioni,Giacomo Vrioni,1.0,ST,,New England,25,69
+Eryk Williamson,Eryk Williamson,1.0,CDM,CM,Portland Timbers,27,69
+Jackson Yueill,Jackson Yueill,1.0,CM,CDM,SJ Earthquakes,27,69
+Júnior Urso,Júnior Urso,1.0,CDM,CM,Charlotte FC,35,68
+Malte Amundsen,Malte Amundsen,1.0,CB,"LB, LM",Columbus Crew,26,68
+Lucas Bartlett,Lucas Bartlett,1.0,CB,,D.C. United,27,68
+Tristan Blackmon,Tristan Blackmon,1.0,CB,RB,Whitecaps FC,28,68
+Chris Brady,Chris Brady,1.0,GK,,Chicago Fire FC,20,68
+Xande Silva,Xande Silva,1.0,LW,"ST, LM",Atlanta United,27,68
+Emeka Eneli,Emeka Eneli,1.0,CDM,"RB, CM",Real Salt Lake,24,68
+Franco Escobar,Franco Escobar,1.0,RB,LB,Houston Dynamo,29,68
+Andrew Farrell,Andrew Farrell,1.0,CB,,New England,32,68
+Julián Fernández,Julián Fernández,1.0,RW,"RM, LW",New York City FC,20,68
+Nick Hagglund,Nick Hagglund,1.0,CB,,FC Cincinnati,32,68
+Jannes Horn,Jannes Horn,1.0,CB,LB,St. Louis CITY SC,27,68
+Anderson Julio,Anderson Julio,1.0,ST,"LM, RM",Real Salt Lake,28,68
+Kristijan Kahlina,Kristijan Kahlina,1.0,GK,,Charlotte FC,32,68
+Mark-Anthony Kaye,Mark-Anthony Kaye,1.0,CM,CDM,New England,29,68
+Sebastian Kowalczyk,Sebastian Kowalczyk,1.0,CAM,"ST, CM",Houston Dynamo,26,68
+Brooks Lennon,Brooks Lennon,1.0,RB,RM,Atlanta United,26,68
+Diego Luna,Diego Luna,1.0,LM,"CAM, LW",Real Salt Lake,21,68
+Adilson Malanda,Adilson Malanda,1.0,CB,,Charlotte FC,22,68
+Olivier Mbaizo,Olivier Mbaizo,1.0,RB,RM,Philadelphia,27,68
+Jack McGlynn,Jack McGlynn,1.0,CM,,Philadelphia,21,68
+Alfredo Morales,Alfredo Morales,1.0,CDM,"CM, CB",SJ Earthquakes,34,68
+Alex Muyl,Alex Muyl,1.0,RM,"RB, CM, RW",Nashville SC,28,68
+Jáder Obrian,Jáder Obrian,1.0,RM,"RW, LM",Austin FC,29,68
+Kwadwo Opoku,Kwadwo Opoku,1.0,ST,RW,CF Montréal,23,68
+Raoul Petretta,Raoul Petretta,1.0,LB,CB,Toronto FC,27,68
+Paxton Pomykal,Paxton Pomykal,1.0,CM,"CDM, CAM",FC Dallas,24,68
+Christian Ramirez,Christian Ramirez,1.0,ST,CAM,Columbus Crew,33,68
+Andrés Reyes,Andrés Reyes,1.0,CB,,Red Bulls,25,68
+Birk Risa,Birk Risa,1.0,CB,,New York City FC,26,68
+Connor Ronan,Connor Ronan,1.0,CM,"CDM, CAM",Colorado Rapids,26,68
+Pedro Amador,Pedro Amador,1.0,LB,,Atlanta United,25,68
+Jonathan Sirois,Jonathan Sirois,1.0,GK,,CF Montréal,23,68
+Brad Stuver,Brad Stuver,1.0,GK,,Austin FC,33,68
+Jamal Thiaré,Jamal Thiaré,1.0,ST,,Atlanta United,31,68
+Wil Trapp,Wil Trapp,1.0,CDM,CM,Minnesota United,31,68
+Kerwin Vargas,Kerwin Vargas,1.0,LW,"RM, RW, LM",Charlotte FC,22,68
+Yaw Yeboah,Yaw Yeboah,1.0,LM,"RM, CAM, LW",Columbus Crew,27,68
+Léo Chú,Léo Chú,1.0,LM,LW,Sounders FC,24,67
+Julián Aude,Julián Aude,1.0,LB,CDM,LA Galaxy,21,67
+David Ayala,David Ayala,1.0,CDM,CM,Portland Timbers,22,67
+Brandt Bronico,Brandt Bronico,1.0,CM,CDM,Charlotte FC,29,67
+Julio Cascante,Julio Cascante,1.0,CB,,Austin FC,30,67
+Edwin Cerrillo,Edwin Cerrillo,1.0,CDM,CM,LA Galaxy,23,67
+Daniel Chacón,Daniel,0.95,CB,CDM,Colorado Rapids,23,67
+Yevgen Cheberko,Yevhen Cheberko,0.9333333333333333,CB,,Columbus Crew,26,67
+Show,Show,1.0,CDM,CM,FC Dallas,25,67
+Djibril Diani,Djibril Diani,1.0,CDM,CM,Charlotte FC,26,67
+Bryce Duke,Bryce Duke,1.0,CAM,CM,CF Montréal,23,67
+Kyle Duncan,Kyle Duncan,1.0,RB,"RM, LB",Red Bulls,27,67
+Derrick Etienne Jr.,Derrick Etienne,0.95,LM,"RM, LW",Toronto FC,27,67
+Marco Farfan,Marco Farfan,1.0,LB,LM,FC Dallas,25,67
+Mohamed Farsi,Mohamed Farsi,1.0,RM,"RB, RW",Columbus Crew,24,67
+Matt Freese,Matt Freese,1.0,GK,,New York City FC,26,67
+Brian Gutiérrez,Brian Gutiérrez,1.0,LM,"CAM, RM, LW",Chicago Fire FC,21,67
+Andrew Gutman,Andrew Gutman,1.0,LB,,Chicago Fire FC,27,67
+Nathan Harriel,Nathan Harriel,1.0,RB,CB,Philadelphia,23,67
+Kyle Hiebert,Kyle Hiebert,1.0,CB,LB,St. Louis CITY SC,27,67
+Aljaž Ivačič,Aljaž Ivačič,1.0,GK,,New England,30,67
+Randall Leal,Randall Leal,1.0,CAM,"CM, RM",Nashville SC,27,67
+Nick Lima,Nick Lima,1.0,RB,LB,New England,29,67
+Matthew Longstaff,Matthew Longstaff,1.0,CM,,Toronto FC,24,67
+Alonso Martínez,Alonso Martínez,1.0,RM,"LM, RW",New York City FC,25,67
+John McCarthy,John McCarthy,1.0,GK,,LA Galaxy,32,67
+Duncan McGuire,Duncan McGuire,1.0,ST,,Orlando City,23,67
+Edwin Mosquera,Edwin Mosquera,1.0,RM,"LM, RW",Atlanta United,23,67
+Gabriel Pirani,Gabriel Pirani,1.0,CAM,CM,D.C. United,22,67
+Jackson Ragen,Jackson Ragen,1.0,CB,,Sounders FC,25,67
+Rodrigues,Rodrigues,1.0,CB,,SJ Earthquakes,26,67
+Sergio Santos,Sergio Santos Gomes,0.95,ST,,FC Cincinnati,30,67
+Jacob Shaffelburg,Jacob Shaffelburg,1.0,LM,"ST, LW",Nashville SC,24,67
+Samuel Shashoua,Samuel Shashoua,1.0,ST,"CAM, RM",Minnesota United,25,67
+Jared Stroud,Jared Stroud,1.0,RM,"LM, RW",D.C. United,28,67
+Indiana Vassilev,Indiana Vassilev,1.0,CM,"CAM, RM",St. Louis CITY SC,23,67
+Pedro Vite,Pedro Vite,1.0,CM,CAM,Whitecaps FC,22,67
+Joel Waterman,Joel Waterman,1.0,CB,,CF Montréal,28,67
+Henry Wingo,Henry Wingo,1.0,CB,RB,Toronto FC,28,67
+Sean Zawadzki,Sean Zawadzki,1.0,CB,"CM, LM",Columbus Crew,24,67
+Lalas Abubakar,Lalas Abubakar,1.0,CB,,Colorado Rapids,29,66
+Corey Baird,Corey Baird,1.0,ST,RM,FC Cincinnati,28,66
+Emmanuel Boateng,Emmanuel Boateng,1.0,LM,"RM, LW",New England,30,66
+Lachlan Brook,Lachlan Brook,1.0,RM,RW,Real Salt Lake,23,66
+George Campbell,George Campbell,1.0,CB,,CF Montréal,23,66
+Jake Davis,Jake Davis,1.0,RB,,Sporting KC,22,66
+Hassani Dotson,Hassani Dotson,1.0,CDM,"LM, CM",Minnesota United,27,66
+Chris Durkin,Chris Durkin,1.0,CM,"CDM, RM",St. Louis CITY SC,24,66
+Raheem Edwards,Raheem Edwards,1.0,LB,LM,CF Montréal,29,66
+Lawrence Ennali,Lawrence Ennali,1.0,LM,"RM, LW",Houston Dynamo,22,66
+Omir Fernandez,Omir Fernandez,1.0,RM,"CAM, LM, RW",Colorado Rapids,25,66
+Deybi Flores,Deybi Flores,1.0,CDM,CM,Toronto FC,28,66
+Brad Guzan,Brad Guzan,1.0,GK,,Atlanta United,40,66
+Maren Haile-Selassie,Maren Haile-Selassie,1.0,RM,"LM, CAM, RW",Chicago Fire FC,25,66
+Cameron Harper,Cameron Harper,1.0,RM,"RB, LM, RW",Red Bulls,22,66
+Fabian Herbers,Fabian Herbers,1.0,RM,"CM, CDM, RW",Chicago Fire FC,31,66
+Jeong Sang Bin,Jeong Sangbin,0.9629629629629629,ST,"RW, CAM",Minnesota United,22,66
+Derrick Jones,Derrick Jones,1.0,CDM,"CM, CB",Columbus Crew,27,66
+Aléxandros Katránis,Alexandros Katranis,1.0,LB,,Real Salt Lake,26,66
+Lassi Lappalainen,Lassi Lappalainen,1.0,LM,"LB, LW",CF Montréal,26,66
+Jasper Löffelsend,Jasper Löffelsend,1.0,CDM,CM,Colorado Rapids,27,66
+JT Marcinkowski,J.T. Marcinkowski,0.967741935483871,GK,,SJ Earthquakes,27,66
+David Martínez,David Martínez,1.0,RM,"CAM, LM, RW",LAFC,18,66
+Zac McGraw,Zac McGraw,1.0,CB,,Portland Timbers,27,66
+Juan David Mosquera,Juan David Mosquera,1.0,RB,RM,Portland Timbers,22,66
+Ian Murphy,Ian Murphy,1.0,CB,,FC Cincinnati,24,66
+Tristan Muyumba,Tristan Muyumba,1.0,CDM,CM,Atlanta United,27,66
+Rafael Navarro,Rafael Navarro,1.0,ST,,Colorado Rapids,24,66
+Jalen Neal,Jalen Neal,1.0,CB,,LA Galaxy,21,66
+Tomáš Ostrák,Tomáš Ostrák,1.0,RM,"LM, CAM, RW",St. Louis CITY SC,24,66
+Dani Pereira,Daniel Pereira,0.9230769230769231,CM,CDM,Austin FC,24,66
+Alvas Powell,Alvas Powell,1.0,RB,RM,FC Cincinnati,30,66
+Memo Rodriguez,Memo Rodriguez,1.0,LM,"CM, RM, LW",Sporting KC,28,66
+Kyle Smith,Kyle Smith,1.0,RB,LB,Orlando City,32,66
+Finn Surman,Finn Surman,1.0,CB,,Portland Timbers,20,66
+Mason Toye,Mason Toye,1.0,ST,,Portland Timbers,25,66
+Bjørn Inge Utvik,Bjørn Inge Utvik,1.0,CB,,Whitecaps FC,28,66
+Derrick Williams,Derrick Williams,1.0,CB,,Atlanta United,31,66
+Patrick Yazbek,Patrick Yazbek,1.0,CDM,CM,Nashville SC,22,66
+Dario Župarić,Dario Župarić,1.0,CB,,Portland Timbers,32,66
+Patrick Agyemang,Patrick Agyemang,1.0,ST,,Charlotte FC,23,65
+Dominique Badji,Dominique Badji,1.0,ST,RM,D.C. United,31,65
+David Bingham,David Bingham,1.0,GK,,Charlotte FC,34,65
+Rafael Santos,Rafael Santos,1.0,LB,,Orlando City,26,65
+Caden Clark,Caden Clark,1.0,CAM,"CM, LM",CF Montréal,21,65
+Daniel Edelman,Daniel Edelman,1.0,CDM,CM,Red Bulls,21,65
+Noah Eile,Noah Eile,1.0,CB,,Red Bulls,22,65
+Tayvon Gray,Tayvon Gray,1.0,RB,CB,New York City FC,22,65
+Ian Harkes,Ian Harkes,1.0,CM,,New England,29,65
+Sebastien Ibeagha,Sebastien Ibeagha,1.0,CB,,FC Dallas,32,65
+Kevin Kelsy,Kevin Kelsy,1.0,ST,,FC Cincinnati,20,65
+Ariel Lassiter,Ariel Lassiter,1.0,LM,"RM, ST, LW",Chicago Fire FC,29,65
+Danny Leyva,Danny Leyva,1.0,CM,CDM,Sounders FC,21,65
+Sebastian Lletget,Sebastian Lletget,1.0,CM,RM,FC Dallas,32,65
+Jack Maher,Jack Maher,1.0,CB,,Nashville SC,24,65
+Paul Marie,Paul Marie,1.0,RB,LB,SJ Earthquakes,29,65
+Logan Ndenbe,Logan Ndenbe,1.0,LB,,Sporting KC,24,65
+John Nelson,John Nelson,1.0,LB,LM,LA Galaxy,26,65
+Edier Ocampo,Édier Ocampo,1.0,RB,,Whitecaps FC,20,65
+Prince Owusu,Prince Owusu,1.0,ST,,Toronto FC,27,65
+James Pantemis,James Pantemis,1.0,GK,,Portland Timbers,27,65
+Tom Pearce,Tom Pearce,1.0,LB,,CF Montréal,26,65
+Andrés Perea,Andrés Perea,1.0,CDM,CM,New York City FC,23,65
+Mauricio Pineda,Mauricio Pineda,1.0,CB,CDM,Chicago Fire FC,26,65
+Célio Pompeu,Célio Pompeu,1.0,LM,"LW, RW",St. Louis CITY SC,24,65
+Andrew Privett,Andrew Privett,1.0,CB,CDM,Charlotte FC,24,65
+Ryan Raposo,Ryan Raposo,1.0,LM,"RM, LB, LW",Whitecaps FC,25,65
+Daniel Ríos,Daniel,0.95,ST,,Atlanta United,29,65
+Nkosi Tafari,Nkosi Tafari,1.0,CB,RB,FC Dallas,27,65
+Carlos Terán,Carlos Terán,1.0,CB,RB,Chicago Fire FC,23,65
+Bill Tuiloma,Bill Tuiloma,1.0,CB,,Charlotte FC,29,65
+Tyler Wolff,Tyler Wolff,1.0,LM,"LW, CM",Atlanta United,21,65
+Ali Ahmed,Ali Ahmed,1.0,CM,RM,Whitecaps FC,23,64
+Noah Allen,Noah Allen,1.0,LB,CB,Inter Miami CF,20,64
+Josh Atencio,Joshua Atencio,0.9230769230769231,CDM,"CM, CB",Sounders FC,22,64
+Ethan Bartlow,Ethan Bartlow,1.0,CB,,Houston Dynamo,24,64
+Tanner Beason,Tanner Beason,1.0,CB,LB,SJ Earthquakes,27,64
+Ben Bender,Ben Bender,1.0,CAM,"LM, CM",Charlotte FC,23,64
+Miguel Berry,Miguel Berry,1.0,ST,,LA Galaxy,26,64
+Sebastian Breza,Sebastian Breza,1.0,GK,,CF Montréal,26,64
+Teal Bunbury,Teal Bunbury,1.0,ST,"LM, RM",Nashville SC,34,64
+Kévin Cabral,Kevin Cabral,1.0,LM,"ST, RM, LW",Colorado Rapids,25,64
+Wikelman Carmona,Wikelman Carmona,1.0,RM,"CAM, LW, RW",Red Bulls,21,64
+Patrickson Delgado,Patrickson Delgado,1.0,CM,CDM,FC Dallas,20,64
+Griffin Dorsey,Griffin Dorsey,1.0,RB,RM,Houston Dynamo,25,64
+Jon Gallagher,Jon Gallagher,1.0,RB,"LB, RM",Austin FC,28,64
+Luka Gavran,Luka Gavran,1.0,GK,,Toronto FC,24,64
+Nicholas Hagen,Nicholas Hagen,1.0,GK,,Columbus Crew,28,64
+Ronald Hernández,Ronald Hernández,1.0,RB,RM,Atlanta United,26,64
+Brendan Hines-Ike,Brendan Hines-Ike,1.0,CB,,Austin FC,29,64
+Sunusi Ibrahim,Sunusi Ibrahim,1.0,ST,CAM,CF Montréal,21,64
+Aziel Jackson,Aziel Jackson,1.0,CAM,RM,Columbus Crew,22,64
+Bernard Kamungo,Bernard Kamungo,1.0,RM,"RW, LM",FC Dallas,22,64
+Benji Kikanović,Benjamin Kikanovic,0.9090909090909091,LM,"LW, ST",SJ Earthquakes,24,64
+Žan Kolmanič,Žan Kolmanič,1.0,LB,,Austin FC,24,64
+Theodore Ku-DiPietro,Theodore Ku-Dipietro,1.0,LM,"CAM, ST, LW",D.C. United,22,64
+Felipe,Felipe Carballo,0.95,CDM,CM,Orlando City,33,64
+Jimmy Maurer,Jimmy Maurer,1.0,GK,,FC Dallas,35,64
+Christopher McVey,Christopher McVey,1.0,CB,"LB, RB",D.C. United,27,64
+Eric Miller,Eric Miller,1.0,RB,"CB, LB",Portland Timbers,31,64
+Dylan Nealis,Dylan Nealis,1.0,RB,"CB, RM",Red Bulls,26,64
+Matti Peltola,Matti Peltola,1.0,CDM,CB,D.C. United,22,64
+Nikola Petkovic,Nikola Petković,1.0,CDM,,Charlotte FC,21,64
+John Pulskamp,John Pulskamp,1.0,GK,,Sporting KC,23,64
+Joseph Rosales,Joseph Rosales,1.0,LB,"LM, CDM",Minnesota United,23,64
+Sigurd Rosted,Sigurd Rosted,1.0,CB,,Toronto FC,30,64
+David Ruiz,David Ruíz,1.0,CM,"CDM, RB",Inter Miami CF,20,64
+Rodrigo Schlegel,Rodrigo Schlegel,1.0,CB,,Orlando City,27,64
+Amar Sejdič,Amar Sejdic,1.0,CM,"CAM, CDM",Nashville SC,27,64
+Brandon Servania,Brandon Servania,1.0,CDM,"CM, RM",Toronto FC,25,64
+Jack Skahan,Jack Skahan,1.0,CM,,SJ Earthquakes,26,64
+Brad Smith,Brad Smith,1.0,LM,"LB, LW",Houston Dynamo,30,64
+Daniel Steres,Daniel Steres,1.0,LB,"RB, CB",Houston Dynamo,33,64
+Peter Stroud,Peter Stroud,1.0,CDM,"CM, RM",Red Bulls,22,64
+Iuri Tavares,Iuri Tavares,1.0,LW,"LM, RM",Charlotte FC,23,64
+Dagur Dan Þór­halls­son,Dagur Dan Þórhallsson,0.9545454545454546,RB,CM,Orlando City,24,64
+Tomas Totland,Tomas Totland,1.0,RB,LB,St. Louis CITY SC,25,64
+Obed Vargas,Obed Vargas,1.0,CM,"CDM, RM",Sounders FC,19,64
+Owen Wolff,Owen Wolff,1.0,CDM,"CM, RM",Austin FC,19,64
+Joshua Yaro,Joshua Yaro,1.0,CB,,St. Louis CITY SC,30,64
+William Agada,William Agada,1.0,ST,LW,Sporting KC,24,63
+Brian Anunga,Brian Anunga,1.0,CDM,CM,Nashville SC,28,63
+Monsef Bakrar,Monsef Bakrar,1.0,ST,,New York City FC,23,63
+Luis Barraza,Luis Barraza,1.0,GK,,New York City FC,27,63
+Sebastian Berhalter,Sebastian Berhalter,1.0,CM,CDM,Whitecaps FC,23,63
+Ousseni Bouda,Ousseni Bouda,1.0,LM,"RM, LW",SJ Earthquakes,24,63
+Evan Bush,Evan Bush,1.0,GK,,Columbus Crew,38,63
+Earl Edwards Jr.,Earl Edwards Jr.,1.0,GK,,New England,32,63
+Kobe Franklin,Kobe Franklin,1.0,RB,LB,Toronto FC,21,63
+Jake Girdwood-Reich,Jake Girdwood-Reich,1.0,CB,CDM,St. Louis CITY SC,20,63
+Omar Gonzalez,Omar Gonzalez,1.0,CB,,FC Dallas,35,63
+Belal Halbouni,Belal Halbouni,1.0,CB,,Whitecaps FC,24,63
+Thomas Hasal,Thomas Hasal,1.0,GK,,LAFC,25,63
+Mitja Ilenič,Mitja Ilenič,1.0,RB,RM,New York City FC,19,63
+Sam Junqua,Sam Junqua,1.0,LB,"CB, LM",FC Dallas,27,63
+Nelson Quiñónes,Nelson Quiñones,1.0,LM,"RM, LW",Houston Dynamo,22,63
+Ryan Sailor,Ryan Sailor,1.0,CB,,Inter Miami CF,26,63
+Quinn Sullivan,Quinn Sullivan,1.0,ST,CM,Philadelphia,20,63
+Andrew Tarbell,Andrew Tarbell,1.0,GK,,Houston Dynamo,30,63
+Zorhan Bassong,Zorhan Bassong,1.0,LB,"CB, CM",Sporting KC,25,62
+Bode Hidalgo,Bode Hidalgo,1.0,RB,,Real Salt Lake,22,62
+Preston Judd,Preston Judd,1.0,ST,,SJ Earthquakes,25,62
+Lukas MacNaughton,Lukas MacNaughton,1.0,CB,,Nashville SC,29,62
+Kevin O'Toole,Kevin O'Toole,1.0,LB,LM,New York City FC,25,62
+Wyatt Omsberg,Wyatt Omsberg,1.0,CB,,Chicago Fire FC,28,62
+Luca Petrasso,Luca Petrasso,1.0,LB,LM,Orlando City,24,62
+Jacen Russell-Rowe,Jacen Russell-Rowe,1.0,ST,CAM,Columbus Crew,22,62
+Khiry Shelton,Khiry Shelton,1.0,ST,"RW, LW",Sporting KC,31,62
+Tyrese Spicer,Tyrese Spicer,1.0,LW,LM,Toronto FC,23,62
+Akil Watts,Akil Watts,1.0,RB,CDM,St. Louis CITY SC,24,62
+Eriq Zavaleta,Eriq Zavaleta,1.0,CB,,LA Galaxy,32,62
+Fernando Álvarez,Fernando Álvarez,1.0,CB,,CF Montréal,21,61
+Tom Barlow,Tom Barlow,1.0,ST,,Chicago Fire FC,29,61
+Yannick Bright,Yannick Bright,1.0,CDM,CM,Inter Miami CF,23,61
+Alonso Coello,Alonso Coello,1.0,CM,CAM,Toronto FC,24,61
+Jonathan Dean,Jonathan Dean,1.0,LB,LM,Chicago Fire FC,27,61
+CJ dos Santos,C.J. dos Santos,0.9629629629629629,GK,,Inter Miami CF,24,61
+Dennis Gjengaar,Dennis Gjengaar,1.0,RM,RW,Red Bulls,20,61
+Nicksoen Gomis,Nicksoen Gomis,1.0,CB,,Toronto FC,22,61
+Deandre Kerr,Deandre Kerr,1.0,ST,"RM, CM",Toronto FC,21,61
+Jahkeele Marshall-Rutty,Jahkeele Marshall-Rutty,1.0,RB,"RM, LM",CF Montréal,20,61
+Tsiki Ntsabeleng,Tsiki Ntsabeleng,1.0,CM,,FC Dallas,26,61
+Devin Padelford,Devin Padelford,1.0,CB,LB,Minnesota United,21,61
+Tate Schmitt,Tate Schmitt,1.0,LB,LM,Houston Dynamo,27,61
+Kosi Thompson,Kosi Thompson,1.0,RB,"RM, CM",Toronto FC,21,61
+Niko Tsakiris,Niko Tsakiris,1.0,CAM,CM,SJ Earthquakes,19,61
+Robert Voloder,Robert Voloder,1.0,CB,LB,Sporting KC,23,61
+Josh Bauer,Josh Bauer,1.0,CB,,Nashville SC,26,60
+Simon Becher,Simon Becher,1.0,ST,,St. Louis CITY SC,25,60
+Giuseppe Bovalina,Giuseppe Bovalina,1.0,RB,,Whitecaps FC,19,60
+Justin Haak,Justin Haak,1.0,CB,"CDM, CM",New York City FC,23,60
+Jacob Jackson,Jacob Jackson,1.0,GK,,SJ Earthquakes,24,60
+Evan Louro,Evan Louro,1.0,GK,,FC Cincinnati,28,60
+Anthony Markanich,Anthony Markanich,1.0,LB,LM,Minnesota United,24,60
+Ralph Priso,Ralph Priso-Mbongue,0.95,CDM,CM,Whitecaps FC,22,60
+Tomás Romero,Tomas Romero,1.0,GK,,New York City FC,23,60
+Dante Sealy,Dante Sealy,1.0,LM,"RM, LW",FC Dallas,21,60
+Tyger Smalls,Tyger Smalls,1.0,RW,"LW, RM",Charlotte FC,22,60
+Garrison Tubbs,Garrison Tubbs,1.0,CB,,D.C. United,22,60
+Darren Yapi,Darren Yapi,1.0,ST,,Colorado Rapids,19,60
+Reed Baker-Whiting,Reed Baker-Whiting,1.0,RB,"LB, LM",Sounders FC,19,59
+Erik Dueñas,Erik Duenas,1.0,CM,RB,LAFC,19,59
+Ian Fray,Ian Fray,1.0,CB,,Inter Miami CF,22,59
+Novak Mićović,Novak Mićović,1.0,GK,,LA Galaxy,22,59
+Shakur Mohammed,Shakur Mohammed,1.0,LM,"CAM, LW",Orlando City,21,59
+Efraín Morales,Efrain Morales,1.0,CB,,Atlanta United,20,59
+Daniel Munie,Daniel Munie,1.0,LB,,SJ Earthquakes,24,59
+Tani Oluwaseyi,Tani Oluwaseyi,1.0,ST,RW,Minnesota United,24,59
+Philip Quinton,Philip Quinton,1.0,CB,,Real Salt Lake,24,59
+Braudilio Rodrigues,Rodrigues,0.95,LW,"CAM, RW, LM",Sounders FC,24,59
+Jules-Anthony Vilsaint,Jules-Anthony Vilsaint,1.0,ST,,CF Montréal,21,59
+Cody Baker,Cody Baker,1.0,RB,LB,Sounders FC,20,58
+Luke Brennan,Luke Brennan,1.0,LW,"RW, LM",Atlanta United,19,58
+Noah Cobb,Noah Cobb,1.0,CB,,Atlanta United,19,58
+Ronald Donkor,Ronald Donkor,1.0,CM,CDM,Red Bulls,19,58
+Serge Ngoma,Serge Ngoma,1.0,RM,"ST, RW",Red Bulls,19,58
+Jayden Reid,Jayden Reid,1.0,LB,LM,St. Louis CITY SC,23,58
+Strahinja Tanasijević,Strahinja Tanasijević,1.0,CB,,New York City FC,27,58
+Andrew Thomas,Andrew Thomas,1.0,GK,,Sounders FC,26,58
+Stephen Afrifa,Stephen Afrifa,1.0,ST,,Sporting KC,23,57
+Brandon Cambridge,Brandon Cambridge,1.0,CM,,Charlotte FC,22,57
+Mauricio Cuevas,Mauricio Cuevas,1.0,RB,,LA Galaxy,21,57
+Ajani Fortune,Ajani Fortune,1.0,CM,,Atlanta United,21,57
+Calvin Harris,Calvin Harris,1.0,LM,"RM, ST, LW",Colorado Rapids,24,57
+Malik Henry-Scott,Malik Henry,0.95,ST,,FC Dallas,22,57
+Oliver Larraz,Oliver Larraz,1.0,CDM,,Colorado Rapids,22,57
+Santiago Morales,Santi Morales,0.896551724137931,CAM,,Inter Miami CF,17,57
+Jacob Murrell,Jacob Murrell,1.0,ST,,D.C. United,20,57
+Nathan Ordaz,Nathan Ordaz,1.0,ST,,LAFC,20,57
+Paul Rothrock,Paul Rothrock,1.0,RM,"LW, RW",Sounders FC,25,57
+Kristian Fletcher,Kristian Fletcher,1.0,LM,LW,D.C. United,19,56
+Carlos Harvey,Carlos Harvey,1.0,CDM,,Minnesota United,24,56
+Jackson Hopkins,Jackson Hopkins,1.0,CAM,CM,D.C. United,20,56
+Jack Neeley,Jack Neeley,1.0,CB,,Charlotte FC,19,56
+Logan Farrington,Logan Farrington,1.0,ST,,FC Dallas,22,55
+Julian Gaines,Julian Gaines,1.0,RB,,Nashville SC,21,55
+Tucker Lepley,Tucker Lepley,1.0,RW,RM,LA Galaxy,22,55
+Nolan Norris,Nolan Norris,1.0,CM,CDM,FC Dallas,19,55
+Javier Otero,Javier Otero,1.0,GK,,Orlando City,21,55
+Isaiah Parente,Isaiah Parente,1.0,CAM,,LA Galaxy,24,55
+Conner Antley,Conner Antley,1.0,LB,CB,D.C. United,29,54
+Michael Edwards,Michael Edwards,1.0,CB,,Colorado Rapids,23,54
+Taha Habroune,Taha Habroune,1.0,CAM,CM,Columbus Crew,18,54
+Jeremy Rafanello,Jeremy Rafanello,1.0,ST,LW,Philadelphia,24,54
+Brooklyn Raines,Brooklyn Raines,1.0,CM,RW,Houston Dynamo,19,54
+Justin Reynolds,Justin Reynolds,1.0,RB,,Chicago Fire FC,20,54
+Adam Beaudry,Adam Beaudry,1.0,GK,,Colorado Rapids,18,53
+Noel Caliskan,Noel Caliskan,1.0,CM,,Real Salt Lake,24,53
+Bret Halsey,Bret Halsey,1.0,RB,CM,FC Cincinnati,24,53
+Stuart Hawkins,Stuart Hawkins,1.0,CB,,Sounders FC,17,53
+Chris Rindov,Chris Rindov,1.0,CB,,Sporting KC,22,53
+Jackson Travis,Jackson Travis,1.0,LB,,Colorado Rapids,20,53
+Thomas Williams,Thomas Williams,1.0,CB,LB,Orlando City,20,53
+CJ Fodrey,CJ Fodrey,1.0,ST,LW,Austin FC,20,52
+Tarik Scott,Tarik Scott,1.0,LM,"RM, LW",FC Dallas,19,52
+Gerardo Valenzuela,Gerardo Valenzuela,1.0,CAM,"ST, CM",FC Cincinnati,19,52
+Forster Ajago,Forster Ajago,1.0,ST,,Nashville SC,23,51
+Wayne Frederick,Wayne Frederick,1.0,CAM,,Colorado Rapids,20,51
+Kimani Stewart-Baynes,Kimani Stewart-Baynes,1.0,ST,,Colorado Rapids,19,51
+Stiven Jimenez,Stiven Jimenez,1.0,RB,CDM,FC Cincinnati,17,50
+Olwethu Makhanya,Olwethu Makhanya,1.0,CB,,Philadelphia,20,50
+Sergio Oregel,Sergio Oregel,1.0,CM,,Chicago Fire FC,19,50
+Jaziel Orozco,Jaziel Orozco,1.0,CB,,Real Salt Lake,20,50
+Jonathan Shore,Jonathan Shore,1.0,CM,,New York City FC,17,50
+Zavier Gozo,Zavier Gozo,1.0,RW,"ST, RM",Real Salt Lake,17,49
+David Vazquez,David Vazquez,1.0,LW,LM,Philadelphia,18,49
+Markus Anderson,Markus Anderson,1.0,LW,LM,Philadelphia,20,48

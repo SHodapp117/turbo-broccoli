@@ -23,7 +23,8 @@ def load_valuation_system():
     """Load and initialize the valuation system"""
     with st.spinner("Loading player data and training models..."):
         system = PlayerValuationSystem()
-        system.load_and_merge_data(season=2025)
+        # Load multi-season data with fallback logic
+        system.load_and_merge_data(seasons=[2025, 2024, 2023])
         system.train_designation_classifiers(min_minutes=900)
         system.load_archetypes()
     return system
@@ -354,12 +355,18 @@ def main():
     st.header(f"{selected_player}")
     st.markdown(f"**{player_team}**")
 
-    # Success message with warning if under threshold
+    # Success message with warning if under threshold or using prior season data
+    data_season = result.get('data_season', 2025)
+    using_prior_season = data_season < 2025
+
     if under_threshold:
         st.warning(f"Limited Playing Time: {player_minutes:.0f} minutes ({player_minutes/90:.1f} matches) - Analysis may be less reliable")
 
+    if using_prior_season:
+        st.info(f"📊 Using {data_season} season data - Player has insufficient data in 2025 season")
+
     # Player info metrics - simplified (removed duplicate tier)
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         st.metric(
@@ -374,6 +381,14 @@ def main():
             "Minutes Played",
             f"{result['minutes']:.0f}",
             delta=minutes_delta
+        )
+
+    with col3:
+        season_delta = "⏮️ Prior season" if using_prior_season else "✓ Current"
+        st.metric(
+            "Data Season",
+            f"{data_season}",
+            delta=season_delta
         )
 
     # Salary estimation
@@ -410,7 +425,10 @@ def main():
 
             # Player archetype
             st.markdown("##### Player Archetype")
-            archetype_text = 'Elite/Specialist (Outlier)' if result.get('is_outlier') else f'Archetype {result.get("archetype", "Unknown")}'
+            if result.get('is_outlier'):
+                archetype_text = 'Elite at Position'
+            else:
+                archetype_text = 'Standard Positional Player'
             st.info(f"**{archetype_text}**")
 
             # Tier probabilities
