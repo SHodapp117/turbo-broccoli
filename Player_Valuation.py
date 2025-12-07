@@ -1,0 +1,514 @@
+"""
+Player Valuation System
+
+Predicts player designation tier, archetype, and contract value based on performance stats.
+
+Author: Spencer Hodapp
+"""
+
+import pandas as pd
+import numpy as np
+from pathlib import Path
+from typing import Dict, List, Tuple
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import NearestNeighbors
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report
+import warnings
+warnings.filterwarnings('ignore')
+
+
+class PlayerValuationSystem:
+    """
+    Complete player valuation system:
+    1. Predicts designation tier (DP/TAM/Standard) from stats
+    2. Assigns archetype based on position clustering
+    3. Estimates salary range using peer comparison
+    """
+
+    def __init__(self):
+        self.data_dir = Path('data')
+        self.processed_dir = self.data_dir / 'processed'
+        self.output_dir = self.data_dir / 'player_valuation'
+        self.output_dir.mkdir(exist_ok=True)
+
+        # Models
+        self.designation_classifiers = {}  # position -> classifier
+        self.archetypes = {}  # position -> DataFrame with archetypes
+        self.salary_models = {}  # position_designation -> model
+
+        # Data
+        self.df_master = None
+
+    def load_and_merge_data(self, season: int = 2025):
+        """Load stats, roster, and salary data"""
+
+        print(f"Loading {season} data...")
+
+        # Load processed stats
+        stats_file = self.processed_dir / f'{season}_all_stats.csv'
+        df_stats = pd.read_csv(stats_file)
+        print(f"  Stats: {len(df_stats)} players")
+
+        # Load roster data
+        roster_file = self.data_dir / f'{season}_roster_profiles_parsed.csv'
+        df_roster = pd.read_csv(roster_file)
+        print(f"  Roster: {len(df_roster)} players")
+
+        # Load salary data
+        salary_file = self.data_dir / 'mls_salaries_all_classified.csv'
+        df_salary = pd.read_csv(salary_file)
+        print(f"  Salary: {len(df_salary)} records")
+
+        # Add Season column to stats if missing
+        if 'Season' not in df_stats.columns:
+            df_stats['Season'] = season
+
+        # Merge stats + roster
+        df_merged = df_stats.merge(
+            df_roster[['name', 'category', 'contract_thru']],
+            left_on='Player',
+            right_on='name',
+            how='left'
+        )
+
+        # Merge with salary
+        df_salary['year_int'] = df_salary['year'].astype(int)
+        df_merged = df_merged.merge(
+            df_salary[['player', 'year_int', 'base_salary', 'compensation']],
+            left_on=['Player', 'Season'],
+            right_on=['player', 'year_int'],
+            how='left'
+        )
+
+        print(f"\nMerged: {len(df_merged)} players")
+        print(f"  With salary data: {df_merged['base_salary'].notna().sum()}")
+        print(f"  With roster designation: {df_merged['category'].notna().sum()}")
+
+        # Feature engineering
+        df_merged = self._engineer_features(df_merged)
+
+        # Filter to players with sufficient minutes for reliable stats
+        df_merged = df_merged[df_merged['Minutes'] >= 270].copy()  # ~3 full games minimum
+        print(f"  After minutes filter (270+): {len(df_merged)} players")
+
+        self.df_master = df_merged
+        return df_merged
+
+    def _engineer_features(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Create position-specific features"""
+
+        print("\nEngineering features...")
+
+        # Per-90 stats
+        df['goals_per_90'] = df['Goals'] / df['90s Played90s played']
+        df['assists_per_90'] = df['Assists'] / df['90s Played90s played']
+        df['xg_per_90'] = df['xG'] / df['90s Played90s played']
+
+        # Performance metrics
+        df['xg_overperformance'] = df['Goals'] - df['xG']
+        df['progressive_actions'] = df['PrgC'] + df['PrgP']
+        df['defensive_actions'] = df['Tkl'] + df['Int']
+
+        # Simplify position
+        df['position_group'] = df['Pos'].apply(self._simplify_position)
+
+        # Map roster designation to tiers
+        df['designation_tier'] = df['category'].apply(self._map_designation)
+
+        print(f"  Created per-90 stats, overperformance, progressive/defensive actions")
+
+        return df
+
+    def _simplify_position(self, pos: str) -> str:
+        """Simplify position to main groups"""
+        if pd.isna(pos):
+            return 'Unknown'
+
+        pos_upper = str(pos).upper()
+
+        if 'GK' in pos_upper:
+            return 'GK'
+        elif 'DF' in pos_upper or 'FB' in pos_upper or 'CB' in pos_upper:
+            return 'DF'
+        elif 'MF' in pos_upper:
+            return 'MF'
+        elif 'FW' in pos_upper:
+            return 'FW'
+        else:
+            # Handle hybrids
+            if ',' in pos_upper:
+                first = pos_upper.split(',')[0].strip()
+                return self._simplify_position(first)
+            return 'Unknown'
+
+    def _map_designation(self, category: str) -> str:
+        """Map roster designation to standard tiers"""
+        if pd.isna(category):
+            return 'Unknown'
+
+        cat_upper = str(category).upper()
+
+        if 'DESIGNATED' in cat_upper or 'DP' in cat_upper:
+            return 'DP'
+        elif 'TAM' in cat_upper:
+            return 'TAM'
+        elif 'U22' in cat_upper or 'U-22' in cat_upper:
+            return 'U22'
+        elif 'HOMEGROWN' in cat_upper or 'HG' in cat_upper:
+            return 'HG'
+        elif 'GENERATION ADIDAS' in cat_upper or 'GA' in cat_upper:
+            return 'GA'
+        else:
+            return 'Standard'
+
+    def train_designation_classifiers(self, min_minutes: int = 900):
+        """
+        Train classifiers to predict designation tier from stats
+        One classifier per position
+        """
+
+        print("\n" + "="*60)
+        print("TRAINING DESIGNATION CLASSIFIERS")
+        print(f"Minimum minutes: {min_minutes}")
+        print("="*60)
+
+        positions = ['FW', 'MF', 'DF']
+
+        for position in positions:
+            print(f"\n{position} Designation Classifier:")
+            print("-" * 40)
+
+            # Filter to position with known designation and salary
+            df_pos = self.df_master[
+                (self.df_master['position_group'] == position) &
+                (self.df_master['designation_tier'].isin(['DP', 'TAM', 'Standard'])) &
+                (self.df_master['Minutes'] >= min_minutes) &
+                (self.df_master['base_salary'].notna())
+            ].copy()
+
+            if len(df_pos) < 30:
+                print(f"  Insufficient data ({len(df_pos)} players), skipping")
+                continue
+
+            # Features: performance stats only
+            feature_cols = self._get_features_for_position(position)
+            X = df_pos[feature_cols].fillna(0)
+            y = df_pos['designation_tier']
+
+            # Train/test split
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.25, random_state=42, stratify=y
+            )
+
+            # Train classifier
+            clf = RandomForestClassifier(n_estimators=100, random_state=42, max_depth=10)
+            clf.fit(X_train, y_train)
+
+            # Evaluate
+            y_pred = clf.predict(X_test)
+            accuracy = accuracy_score(y_test, y_pred)
+
+            print(f"  Training samples: {len(df_pos)}")
+            print(f"  Accuracy: {accuracy:.3f}")
+            print(f"  Class distribution:")
+            for tier in ['DP', 'TAM', 'Standard']:
+                count = (y == tier).sum()
+                pct = count / len(y) * 100
+                print(f"    {tier}: {count} ({pct:.1f}%)")
+
+            # Store model
+            self.designation_classifiers[position] = {
+                'model': clf,
+                'features': feature_cols,
+                'accuracy': accuracy,
+                'scaler': StandardScaler().fit(X_train)
+            }
+
+        print("\n" + "="*60)
+        print(f"CLASSIFIERS TRAINED: {len(self.designation_classifiers)}")
+        print("="*60)
+
+    def _get_features_for_position(self, position: str) -> List[str]:
+        """Get relevant features for position"""
+
+        common = ['goals_per_90', 'assists_per_90', 'xG', 'npxG', 'Minutes',
+                  'xg_overperformance', 'progressive_actions']
+
+        position_specific = {
+            'FW': common + ['Sh', 'SoT', 'PrgC', 'PrgR'],
+            'MF': common + ['PrgP', 'KP', 'Cmp', 'PPA', 'defensive_actions'],
+            'DF': ['Minutes', 'defensive_actions', 'PrgP', 'Tkl', 'Int', 'Blocks', 'Cmp'],
+            'GK': ['Minutes', 'Saves', 'GA', 'SoTA', 'CS']
+        }
+
+        return position_specific.get(position, common)
+
+    def load_archetypes(self):
+        """Load pre-computed archetypes from Contract_Valuation.py output"""
+
+        print("\nLoading archetypes...")
+
+        archetype_file = self.data_dir / 'contract_valuation' / 'player_archetypes_2025.csv'
+
+        if not archetype_file.exists():
+            print(f"  Archetype file not found. Run Contract_Valuation.py first.")
+            return
+
+        df_arch = pd.read_csv(archetype_file)
+
+        # Split by position
+        for position in ['FW', 'MF', 'DF']:
+            df_pos = df_arch[df_arch['segment'] == position].copy()
+            self.archetypes[position] = df_pos
+            print(f"  {position}: {len(df_pos)} players with archetypes")
+
+    def estimate_salary_range(self, player_stats: pd.Series, n_peers: int = 10) -> Dict:
+        """
+        Estimate salary range using K-nearest neighbors approach
+
+        Args:
+            player_stats: Player's statistics
+            n_peers: Number of similar players to compare
+
+        Returns:
+            Dictionary with salary estimates
+        """
+
+        position = player_stats['position_group']
+        designation = player_stats.get('predicted_designation', player_stats.get('designation_tier'))
+
+        # Get peers: same position + designation, with salary data
+        df_peers = self.df_master[
+            (self.df_master['position_group'] == position) &
+            (self.df_master['designation_tier'] == designation) &
+            (self.df_master['base_salary'].notna()) &
+            (self.df_master['Minutes'] >= 900)
+        ].copy()
+
+        if len(df_peers) < 5:
+            return {
+                'error': f'Insufficient peer data ({len(df_peers)} players)',
+                'peers_found': len(df_peers)
+            }
+
+        # Features for similarity
+        feature_cols = self._get_features_for_position(position)
+
+        # Filter to features that exist in the data
+        available_features = [f for f in feature_cols if f in df_peers.columns]
+        if not available_features:
+            return {'error': 'No matching features available for comparison'}
+
+        X_peers = df_peers[available_features].fillna(0)
+        X_player = player_stats[available_features].fillna(0).values.reshape(1, -1)
+
+        # Find nearest neighbors
+        nn = NearestNeighbors(n_neighbors=min(n_peers, len(df_peers)))
+        nn.fit(X_peers)
+        distances, indices = nn.kneighbors(X_player)
+
+        # Get peer salaries
+        peer_players = df_peers.iloc[indices[0]]
+        peer_salaries = peer_players['base_salary'].values
+
+        return {
+            'predicted_salary': np.median(peer_salaries),
+            'salary_range_low': np.percentile(peer_salaries, 25),
+            'salary_range_high': np.percentile(peer_salaries, 75),
+            'peer_min': peer_salaries.min(),
+            'peer_max': peer_salaries.max(),
+            'n_peers': len(peer_players),
+            'peer_names': peer_players['Player'].tolist()[:5],  # Top 5 most similar
+            'peer_salaries': peer_salaries[:5].tolist()
+        }
+
+    def value_player(self, player_name: str) -> Dict:
+        """
+        Complete valuation for a player
+
+        Returns:
+            - Predicted designation tier
+            - Archetype assignment
+            - Estimated salary range
+            - Statistical peers
+        """
+
+        # Find player
+        player = self.df_master[self.df_master['Player'] == player_name]
+
+        if len(player) == 0:
+            return {'error': f'Player "{player_name}" not found'}
+
+        player = player.iloc[0]
+        position = player['position_group']
+
+        print(f"\n{'='*60}")
+        print(f"VALUATION: {player_name}")
+        print(f"{'='*60}")
+        print(f"Position: {position}")
+        print(f"Minutes Played: {player['Minutes']:.0f}")
+
+        result = {
+            'player': player_name,
+            'position': position,
+            'minutes': player['Minutes'],
+            'actual_designation': player['designation_tier'] if 'designation_tier' in player else None,
+            'actual_salary': player['base_salary'] if 'base_salary' in player and pd.notna(player['base_salary']) else None
+        }
+
+        # Step 1: Predict designation tier
+        if position in self.designation_classifiers:
+            clf_info = self.designation_classifiers[position]
+            features = clf_info['features']
+            X = player[features].fillna(0).values.reshape(1, -1)
+
+            predicted_designation = clf_info['model'].predict(X)[0]
+            proba = clf_info['model'].predict_proba(X)[0]
+
+            result['predicted_designation'] = predicted_designation
+            result['designation_confidence'] = {
+                cls: prob for cls, prob in zip(clf_info['model'].classes_, proba)
+            }
+
+            print(f"\nPredicted Designation: {predicted_designation}")
+            print(f"  Confidence: {max(proba):.1%}")
+            for cls, prob in zip(clf_info['model'].classes_, proba):
+                print(f"    {cls}: {prob:.1%}")
+        else:
+            result['predicted_designation'] = player.get('designation_tier', 'Unknown')
+            print(f"\nDesignation: {result['predicted_designation']} (actual)")
+
+        # Step 2: Get archetype
+        if position in self.archetypes:
+            arch_df = self.archetypes[position]
+            player_arch = arch_df[arch_df['Player'] == player_name]
+
+            if len(player_arch) > 0:
+                archetype = player_arch.iloc[0]['archetype']
+                result['archetype'] = int(archetype)
+                result['is_outlier'] = archetype == -1
+
+                print(f"\nArchetype: {archetype}")
+                if archetype == -1:
+                    print(f"  Status: Statistical Outlier (elite/specialist)")
+                else:
+                    print(f"  Status: Archetype {archetype}")
+
+        # Step 3: Estimate salary range using peers
+        player_with_prediction = player.copy()
+        if 'predicted_designation' in result:
+            player_with_prediction['predicted_designation'] = result['predicted_designation']
+
+        salary_est = self.estimate_salary_range(player_with_prediction)
+        result['salary_estimate'] = salary_est
+
+        if 'error' not in salary_est:
+            print(f"\nEstimated Salary Range:")
+            print(f"  Median: ${salary_est['predicted_salary']/1000:.0f}K")
+            print(f"  Range (25th-75th): ${salary_est['salary_range_low']/1000:.0f}K - ${salary_est['salary_range_high']/1000:.0f}K")
+            print(f"  Peer Range: ${salary_est['peer_min']/1000:.0f}K - ${salary_est['peer_max']/1000:.0f}K")
+            print(f"  Based on {salary_est['n_peers']} similar players")
+
+            print(f"\nTop 5 Statistical Peers:")
+            for i, (name, salary) in enumerate(zip(salary_est['peer_names'], salary_est['peer_salaries']), 1):
+                print(f"  {i}. {name}: ${salary/1000:.0f}K")
+
+            if result['actual_salary']:
+                error = abs(result['actual_salary'] - salary_est['predicted_salary'])
+                error_pct = error / result['actual_salary'] * 100
+                print(f"\nActual Salary: ${result['actual_salary']/1000:.0f}K")
+                print(f"Prediction Error: ${error/1000:.0f}K ({error_pct:.1f}%)")
+
+        return result
+
+    def batch_validate(self, n_samples: int = 20):
+        """
+        Validate the system on random players
+        """
+
+        print("\n" + "="*60)
+        print(f"BATCH VALIDATION ({n_samples} players)")
+        print("="*60)
+
+        # Sample players with salary data
+        df_sample = self.df_master[
+            (self.df_master['base_salary'].notna()) &
+            (self.df_master['Minutes'] >= 900)
+        ].sample(n=min(n_samples, len(self.df_master)), random_state=42)
+
+        results = []
+
+        for _, player in df_sample.iterrows():
+            result = self.value_player(player['Player'])
+
+            if 'salary_estimate' in result and 'predicted_salary' in result['salary_estimate']:
+                results.append({
+                    'player': result['player'],
+                    'actual': result['actual_salary'],
+                    'predicted': result['salary_estimate']['predicted_salary'],
+                    'error': abs(result['actual_salary'] - result['salary_estimate']['predicted_salary']),
+                    'error_pct': abs(result['actual_salary'] - result['salary_estimate']['predicted_salary']) / result['actual_salary'] * 100
+                })
+
+        if results:
+            df_results = pd.DataFrame(results)
+
+            print(f"\n{'='*60}")
+            print("VALIDATION SUMMARY")
+            print(f"{'='*60}")
+            print(f"Mean Absolute Error: ${df_results['error'].mean()/1000:.0f}K")
+            print(f"Median Error: ${df_results['error'].median()/1000:.0f}K")
+            print(f"Mean Error %: {df_results['error_pct'].mean():.1f}%")
+            print(f"Median Error %: {df_results['error_pct'].median():.1f}%")
+
+
+def main():
+    """Main execution"""
+
+    print("="*60)
+    print("PLAYER VALUATION SYSTEM")
+    print("="*60)
+
+    # Initialize
+    system = PlayerValuationSystem()
+
+    # Load data
+    system.load_and_merge_data(season=2025)
+
+    # Train designation classifiers
+    system.train_designation_classifiers(min_minutes=900)
+
+    # Load archetypes (from previous Contract_Valuation.py run)
+    system.load_archetypes()
+
+    # Test valuation on specific players
+    test_players = [
+        'Lionel Messi',
+        'Sergio Busquets',
+        'Denis Bouanga',
+        'Cucho Hernández',
+        'Diego Rossi'
+    ]
+
+    print("\n" + "="*60)
+    print("TESTING PLAYER VALUATIONS")
+    print("="*60)
+
+    for player_name in test_players:
+        try:
+            result = system.value_player(player_name)
+        except Exception as e:
+            print(f"\nError valuing {player_name}: {e}")
+
+    # Batch validation
+    system.batch_validate(n_samples=15)
+
+    print("\n" + "="*60)
+    print("✓ COMPLETE!")
+    print("="*60)
+
+
+if __name__ == '__main__':
+    main()
