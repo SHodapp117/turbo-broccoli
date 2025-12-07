@@ -15,6 +15,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import NearestNeighbors
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
+import json
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -40,6 +41,13 @@ class PlayerValuationSystem:
 
         # Data
         self.df_master = None
+
+        # Load player name mapping
+        self.name_mapping = {}
+        mapping_file = self.data_dir / 'player_name_mapping.json'
+        if mapping_file.exists():
+            with open(mapping_file, 'r') as f:
+                self.name_mapping = json.load(f)
 
     def load_and_merge_data(self, season: int = 2025):
         """Load stats, roster, and salary data"""
@@ -335,11 +343,14 @@ class PlayerValuationSystem:
             - Statistical peers
         """
 
+        # Map player name to stats database name if needed
+        stats_name = self.name_mapping.get(player_name, player_name)
+
         # Find player
-        player = self.df_master[self.df_master['Player'] == player_name]
+        player = self.df_master[self.df_master['Player'] == stats_name]
 
         if len(player) == 0:
-            return {'error': f'Player "{player_name}" not found'}
+            return {'error': f'Player "{player_name}" not found in stats database (searched as "{stats_name}")'}
 
         player = player.iloc[0]
         position = player['position_group']

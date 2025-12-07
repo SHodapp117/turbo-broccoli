@@ -1,19 +1,28 @@
 # turbo-broccoli
 
-MLS Player Statistics & Roster Analysis Project
+MLS Player Statistics, Roster Analysis & Free Agent Valuation System
 
 ## Overview
 
-This project scrapes and analyzes Major League Soccer (MLS) player performance statistics from FBref.com and parses official MLS Club Roster Profile PDFs.
+This project scrapes and analyzes Major League Soccer (MLS) player performance statistics from FBref.com, parses official MLS Club Roster Profile PDFs, and provides an interactive web application for valuing free agents using machine learning.
 
 ## Features
 
+### Data Collection & Processing
 - **Web Scraper** ([MLS_Stats.py](MLS_Stats.py)): Scrapes player stats from FBref using Selenium
 - **PDF Parser** ([parse_roster_pdfs.py](parse_roster_pdfs.py)): Extracts structured roster data from MLS Club Roster Profile PDFs
 - **Stats Processor** ([Stats_Processor.py](Stats_Processor.py)): Consolidates stats from multiple categories into unified dataframes
 - **SCD2 Storage** ([SCD2_Storage.py](SCD2_Storage.py)): Memory-efficient storage with SCD Type 2 pattern for S3 and ML workflows
 - **Player Clustering** ([Player_Clustering.py](Player_Clustering.py)): DBSCAN clustering to discover player archetypes
-- **Historical Data**: Maintains datasets for 2023-2025 seasons
+
+### Machine Learning & Valuation
+- **Player Valuation System** ([Player_Valuation.py](Player_Valuation.py)): ML-based player contract valuation using K-NN peer comparison and Random Forest classification
+- **Free Agent Analyzer** ([find_free_agents_2026.py](find_free_agents_2026.py)): Identifies all 2026 free agents from roster data
+- **Contract Valuator App** ([app.py](app.py)): Interactive Streamlit web application for analyzing and valuing free agents
+
+### Historical Data
+- Maintains comprehensive datasets for 2023-2025 seasons
+- Tracks 433 free agents for 2026 season
 
 ## Data Sources
 
@@ -137,19 +146,62 @@ python Player_Clustering.py
 
 See [CLUSTERING_ANALYSIS.md](CLUSTERING_ANALYSIS.md) for detailed results and insights.
 
+### Free Agent Valuation System
+
+```bash
+# 1. Generate free agents list
+python find_free_agents_2026.py
+
+# 2. Launch the interactive web application
+streamlit run app.py
+```
+
+**The Streamlit app provides:**
+- **433 Free Agents** with contracts expiring in 2025
+- **Advanced Filtering** by team, position, designation, and option status
+- **ML-Powered Valuations** using K-Nearest Neighbors and Random Forest
+- **Contract Recommendations** including base salary and negotiation ranges
+- **Statistical Peer Comparison** with 10 most similar players
+- **Radar Charts** comparing performance across 5 categories (or 4 for goalkeepers)
+- **Market Analysis** showing under/overpaid players
+- **Automatic Name Mapping** handles 400+ player name variations
+
+**Output:**
+- `data/free_agents_2026.csv` (433 free agents with roster details)
+- `data/player_name_mapping.json` (400 mapped names for stats lookup)
+- Interactive web UI at `http://localhost:8501`
+
+**Key Features:**
+- Position-specific models (FW, MF, DF, GK)
+- Goalkeeper-specific radar charts (Shot Stopping, Distribution, Sweeping, Passing Under Pressure)
+- Outfield player radar charts (Shooting, Passing, Possession, Defensive, Creation)
+- Dynamic filtering with real-time updates
+- Contract tier predictions with confidence scores
+- Player archetype classification
+
+See [README_APP.md](README_APP.md), [QUICKSTART.md](QUICKSTART.md), and [FEATURES.md](FEATURES.md) for detailed app documentation.
+
 ## Project Structure
 
 ```
 turbo-broccoli/
-├── MLS_Stats.py              # FBref web scraper
-├── parse_roster_pdfs.py      # PDF roster parser
-├── Stats_Processor.py        # Stats consolidation processor
-├── SCD2_Storage.py           # SCD Type 2 storage manager
-├── Player_Clustering.py      # DBSCAN clustering analysis
-├── ML_WORKFLOW.md            # ML usage guide
-├── CLUSTERING_ANALYSIS.md    # Clustering results & insights
-├── 2023_PayData.py          # (Empty - future salary analysis)
-├── requirements.txt          # Python dependencies
+├── MLS_Stats.py                  # FBref web scraper
+├── parse_roster_pdfs.py          # PDF roster parser
+├── Stats_Processor.py            # Stats consolidation processor
+├── SCD2_Storage.py               # SCD Type 2 storage manager
+├── Player_Clustering.py          # DBSCAN clustering analysis
+├── Player_Valuation.py           # ML-based contract valuation system
+├── find_free_agents_2026.py      # Free agent identifier
+├── app.py                        # Streamlit web application
+├── Contract_Valuation.py         # Contract tier classification (legacy)
+├── value_rothrock.py             # Single player valuation example
+├── ML_WORKFLOW.md                # ML usage guide
+├── CLUSTERING_ANALYSIS.md        # Clustering results & insights
+├── README_APP.md                 # Web app documentation
+├── QUICKSTART.md                 # Quick start guide for app
+├── FEATURES.md                   # Detailed feature list
+├── FILTERING_GUIDE.md            # App filtering documentation
+├── requirements.txt              # Python dependencies
 ├── data/                     # CSV data directory
 │   ├── 2023_*.csv           # 2023 season stats (8 files)
 │   ├── 2024_*.csv           # 2024 season stats (8 files)
@@ -157,6 +209,8 @@ turbo-broccoli/
 │   ├── mls_salaries_all_classified.csv
 │   ├── 2024_roster_profiles_parsed.csv
 │   ├── 2025_roster_profiles_parsed.csv
+│   ├── free_agents_2026.csv          # 433 free agents for 2026
+│   ├── player_name_mapping.json      # Name mapping for stats lookup
 │   ├── processed/           # Processed unified stats
 │   │   ├── 2023_all_stats.csv
 │   │   ├── 2024_all_stats.csv
