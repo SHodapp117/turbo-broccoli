@@ -55,7 +55,10 @@ def get_peer_comparison_data(system, player_name, peer_names):
         return None
 
     # Check if player is a goalkeeper
-    player_row = df[df['Player'] == player_name].iloc[0]
+    player_matches = df[df['Player'] == player_name]
+    if len(player_matches) == 0:
+        return None
+    player_row = player_matches.iloc[0]
     is_gk = player_row['Pos'] == 'GK' if 'Pos' in df.columns else False
 
     # Define stat categories for radar charts
@@ -369,10 +372,24 @@ def main():
     col1, col2, col3 = st.columns(3)
 
     with col1:
+        # Display granular position if available, with position_group as backup
+        granular_pos = result.get('granular_position')
+        if granular_pos and pd.notna(granular_pos):
+            position_display = f"{granular_pos} ({result['position']})"
+            alt_pos = result.get('alternative_positions')
+            if alt_pos and pd.notna(alt_pos):
+                position_help = f"Alternative positions: {alt_pos}"
+            else:
+                position_help = None
+        else:
+            position_display = result['position']
+            position_help = "FBref group position"
+
         st.metric(
             "Position",
-            result['position'],
-            delta=None
+            position_display,
+            delta=None,
+            help=position_help
         )
 
     with col2:
