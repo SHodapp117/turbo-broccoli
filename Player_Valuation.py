@@ -84,6 +84,153 @@ class PlayerValuationSystem:
 
         return result
 
+    def _get_age_adjustment_factor(self, age: int, position_group: str, granular_position: str = None) -> float:
+        """
+        Calculate age-based salary adjustment factor using position-specific age curves.
+        Based on academic research showing peak performance ages vary by position.
+
+        Returns:
+            Multiplier (0.8 to 1.2) to adjust base salary recommendation
+        """
+
+        # Position-specific peak age ranges (from academic research)
+        peak_ages = {
+            # Forwards peak earlier (pace-dependent)
+            'FW': {'start': 24, 'peak': 27, 'decline': 30},
+            'ST': {'start': 24, 'peak': 27, 'decline': 30},
+            'CF': {'start': 24, 'peak': 27, 'decline': 30},
+            'LW': {'start': 23, 'peak': 26, 'decline': 29},
+            'RW': {'start': 23, 'peak': 26, 'decline': 29},
+
+            # Attacking midfielders (balanced)
+            'CAM': {'start': 24, 'peak': 27, 'decline': 30},
+            'LM': {'start': 23, 'peak': 26, 'decline': 29},
+            'RM': {'start': 23, 'peak': 26, 'decline': 29},
+
+            # Central midfielders peak slightly later (experience matters)
+            'MF': {'start': 25, 'peak': 28, 'decline': 31},
+            'CM': {'start': 25, 'peak': 28, 'decline': 31},
+            'CDM': {'start': 26, 'peak': 29, 'decline': 32},
+
+            # Defenders peak latest (positioning/experience key)
+            'DF': {'start': 26, 'peak': 29, 'decline': 32},
+            'CB': {'start': 26, 'peak': 29, 'decline': 33},
+            'LB': {'start': 24, 'peak': 27, 'decline': 30},
+            'RB': {'start': 24, 'peak': 27, 'decline': 30},
+
+            # Goalkeepers have longest careers
+            'GK': {'start': 26, 'peak': 30, 'decline': 35}
+        }
+
+        # Use granular position if available, else position group
+        position_key = granular_position if granular_position in peak_ages else position_group
+        peaks = peak_ages.get(position_key, {'start': 24, 'peak': 27, 'decline': 30})
+
+        # Calculate adjustment factor
+        if age < peaks['start']:
+            # Young player - potential but unproven (90-95% of peak value)
+            years_to_peak = peaks['start'] - age
+            factor = 0.90 + (0.05 * (1 - min(years_to_peak / 3, 1)))
+
+        elif peaks['start'] <= age <= peaks['peak']:
+            # Prime years - premium value (100-120%)
+            # Peak at optimal age, taper at edges
+            if age == peaks['peak']:
+                factor = 1.20
+            elif age == peaks['start']:
+                factor = 1.05
+            else:
+                # Linear interpolation to peak
+                progress = (age - peaks['start']) / (peaks['peak'] - peaks['start'])
+                factor = 1.05 + (0.15 * progress)
+
+        elif peaks['peak'] < age <= peaks['decline']:
+            # Post-peak but still valuable (95-105%)
+            years_past_peak = age - peaks['peak']
+            decline_range = peaks['decline'] - peaks['peak']
+            factor = 1.20 - (0.25 * (years_past_peak / decline_range))
+
+        else:
+            # Past decline age - diminishing value (70-90%)
+            years_past_decline = age - peaks['decline']
+            factor = max(0.70, 0.95 - (0.05 * min(years_past_decline, 5)))
+
+        return factor
+
+    def _optimize_contract_structure(self, base_salary: float, age: int) -> Dict:
+        """
+        Suggest optimal MLS contract structure based on salary and age.
+        Uses 2025 MLS salary cap rules.
+
+        Returns:
+            Dict with designation, GAM/TAM usage, and budget charge
+        """
+
+        # 2025 MLS Thresholds
+        MAX_BUDGET_CHARGE = 683_750
+        TAM_THRESHOLD = 1_683_750
+
+        # Age-based DP budget charges
+        if age <= 20:
+            DP_CHARGE = 150_000
+        elif 21 <= age <= 23:
+            DP_CHARGE = 200_000
+        else:
+            DP_CHARGE = MAX_BUDGET_CHARGE
+
+        result = {
+            'base_salary': base_salary,
+            'designation': None,
+            'budget_charge': 0,
+            'allocation_money_needed': 0,
+            'allocation_type': None,
+            'description': ''
+        }
+
+        # Determine designation and structure
+        if base_salary <= MAX_BUDGET_CHARGE:
+            # Standard roster player
+            result['designation'] = 'Standard'
+            result['budget_charge'] = base_salary
+            result['description'] = f"Standard roster player. Budget charge: ${base_salary:,.0f}"
+
+        elif base_salary <= TAM_THRESHOLD:
+            # TAM player (buy down to max budget charge)
+            tam_needed = base_salary - MAX_BUDGET_CHARGE
+            result['designation'] = 'TAM'
+            result['budget_charge'] = MAX_BUDGET_CHARGE
+            result['allocation_money_needed'] = tam_needed
+            result['allocation_type'] = 'TAM'
+            result['description'] = (
+                f"TAM player. Use ${tam_needed:,.0f} TAM to buy down from "
+                f"${base_salary:,.0f} to ${MAX_BUDGET_CHARGE:,.0f} budget charge"
+            )
+
+        else:
+            # Designated Player
+            result['designation'] = 'DP'
+            result['budget_charge'] = DP_CHARGE
+            result['description'] = (
+                f"Designated Player. Salary ${base_salary:,.0f} "
+                f"counts as ${DP_CHARGE:,.0f} against cap (age {age})"
+            )
+
+            # Check if can buy down with TAM
+            if base_salary <= (MAX_BUDGET_CHARGE + 1_000_000):
+                # Within $1M of max charge - eligible for TAM buydown
+                tam_to_buydown = base_salary - MAX_BUDGET_CHARGE
+                result['tam_buydown_option'] = {
+                    'tam_needed': tam_to_buydown,
+                    'new_designation': 'TAM',
+                    'new_budget_charge': MAX_BUDGET_CHARGE,
+                    'description': (
+                        f"Option: Use ${tam_to_buydown:,.0f} TAM to remove DP tag, "
+                        f"making them a TAM player with ${MAX_BUDGET_CHARGE:,.0f} charge"
+                    )
+                }
+
+        return result
+
     def load_and_merge_data(self, seasons: list = [2025, 2024, 2023]):
         """
         Load stats, roster, and salary data from multiple seasons.
@@ -593,7 +740,7 @@ class PlayerValuationSystem:
         result['salary_estimate'] = salary_est
 
         if 'error' not in salary_est:
-            print(f"\nEstimated Salary Range:")
+            print(f"\nEstimated Salary Range (Base Statistical Model):")
             print(f"  Median: ${salary_est['predicted_salary']/1000:.0f}K")
             print(f"  Range (25th-75th): ${salary_est['salary_range_low']/1000:.0f}K - ${salary_est['salary_range_high']/1000:.0f}K")
 
@@ -610,8 +757,50 @@ class PlayerValuationSystem:
             for i, (name, salary) in enumerate(zip(salary_est['peer_names'], salary_est['peer_salaries']), 1):
                 print(f"  {i}. {name}: ${salary/1000:.0f}K")
 
+            # Apply age adjustment - parse age from FBref format (e.g., "26-329" = 26 years, 329 days)
+            age_value = player.get('Age', '27')
+            if pd.notna(age_value):
+                # Extract just the year portion (before the hyphen)
+                age_str = str(age_value).split('-')[0]
+                try:
+                    player_age = int(age_str)
+                except ValueError:
+                    player_age = 27  # Default if parsing fails
+            else:
+                player_age = 27
+            age_factor = self._get_age_adjustment_factor(
+                player_age,
+                position,
+                player.get('granular_position') if pd.notna(player.get('granular_position')) else None
+            )
+
+            age_adjusted_salary = salary_est['predicted_salary'] * age_factor
+            age_adjusted_low = salary_est['salary_range_low'] * age_factor
+            age_adjusted_high = salary_est['salary_range_high'] * age_factor
+
+            print(f"\nAge-Adjusted Valuation (Age {player_age}):")
+            print(f"  Adjustment Factor: {age_factor:.2f}x ({(age_factor-1)*100:+.1f}%)")
+            print(f"  Recommended Salary: ${age_adjusted_salary/1000:.0f}K")
+            print(f"  Adjusted Range: ${age_adjusted_low/1000:.0f}K - ${age_adjusted_high/1000:.0f}K")
+
+            # Store age-adjusted values
+            result['age'] = player_age
+            result['age_adjustment_factor'] = age_factor
+            result['age_adjusted_salary'] = age_adjusted_salary
+            result['age_adjusted_range_low'] = age_adjusted_low
+            result['age_adjusted_range_high'] = age_adjusted_high
+
+            # Contract structure optimization
+            contract_structure = self._optimize_contract_structure(age_adjusted_salary, player_age)
+            result['contract_structure'] = contract_structure
+
+            print(f"\nMLS Contract Structure Recommendation:")
+            print(f"  {contract_structure['description']}")
+            if 'tam_buydown_option' in contract_structure:
+                print(f"  {contract_structure['tam_buydown_option']['description']}")
+
             if result['actual_salary']:
-                error = abs(result['actual_salary'] - salary_est['predicted_salary'])
+                error = abs(result['actual_salary'] - age_adjusted_salary)
                 error_pct = error / result['actual_salary'] * 100
                 print(f"\nActual Salary: ${result['actual_salary']/1000:.0f}K")
                 print(f"Prediction Error: ${error/1000:.0f}K ({error_pct:.1f}%)")

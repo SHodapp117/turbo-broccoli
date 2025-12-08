@@ -11,6 +11,36 @@ from Player_Valuation import PlayerValuationSystem
 import plotly.express as px
 import plotly.graph_objects as go
 
+# Helper function for consistent salary formatting
+def format_salary(salary):
+    """Format salary consistently - K for thousands, M for millions"""
+    if salary >= 1_000_000:
+        return f"${salary/1_000_000:.2f}M"
+    else:
+        return f"${salary/1000:.0f}K"
+
+def safe_max(*values):
+    """Safely find max value, filtering out None values and NaN"""
+    filtered = []
+    for v in values:
+        if v is not None and not (isinstance(v, float) and pd.isna(v)):
+            filtered.append(v)
+    return max(filtered) if filtered else 0
+
+def get_salary_axis_config(max_salary):
+    """
+    Determine appropriate axis scaling and label for salary charts.
+    Returns (divisor, label) tuple.
+    """
+    # Handle None or 0 values
+    if max_salary is None or max_salary == 0:
+        return 1_000, "Salary ($K)"
+
+    if max_salary >= 1_000_000:
+        return 1_000_000, "Salary ($M)"
+    else:
+        return 1_000, "Salary ($K)"
+
 # Page config
 st.set_page_config(
     page_title="MLS Free Agent Valuator",
@@ -295,16 +325,82 @@ def main():
     elif has_option_filter == "No Team Option":
         filtered_df = filtered_df[filtered_df['option_years'].isna()]
 
+    # Valuation adjustments section
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### Valuation Adjustments")
+
+    # Toggle for age-based adjustment
+    apply_age_adjustment = st.sidebar.checkbox(
+        "Apply Age-Based Premium",
+        value=True,
+        help="Adjust salary based on position-specific age curves (peak ages vary by position)"
+    )
+
+    # Show additional premium options in expander
+    with st.sidebar.expander("Additional Premiums"):
+        championship_premium = st.checkbox(
+            "Championship Bonus",
+            value=False,
+            help="Apply 5-15% premium for MLS Cup winners"
+        )
+
+        if championship_premium:
+            champ_pct = st.slider(
+                "Championship Premium %",
+                min_value=5,
+                max_value=15,
+                value=10,
+                step=1
+            )
+        else:
+            champ_pct = 0
+
+        breakout_premium = st.checkbox(
+            "Breakout Season Bonus",
+            value=False,
+            help="Apply 5-10% premium for career-best performance"
+        )
+
+        if breakout_premium:
+            breakout_pct = st.slider(
+                "Breakout Premium %",
+                min_value=5,
+                max_value=10,
+                value=7,
+                step=1
+            )
+        else:
+            breakout_pct = 0
+
     # Info sidebar
     st.sidebar.markdown("---")
     st.sidebar.markdown("### About")
     st.sidebar.info(
         "This tool analyzes **2026 MLS Free Agents** using:\n\n"
-        "✓ K-Nearest Neighbors peer comparison\n"
-        "✓ 2025 season performance data\n"
-        "✓ Statistical clustering by archetype\n\n"
+        "- K-Nearest Neighbors peer comparison\n"
+        "- 2025 season performance data\n"
+        "- Statistical clustering by archetype\n"
+        "- Position-specific age curves\n"
+        "- MLS salary cap optimization\n\n"
         f"**{len(fa_df)} total free agents** identified with contracts expiring in 2025"
     )
+
+    # Academic citations
+    with st.sidebar.expander("Academic Sources"):
+        st.markdown("""
+        **Age Curve Analysis:**
+        - Franceschi et al. (2024). [Determinants of football players' valuation: A systematic review](https://onlinelibrary.wiley.com/doi/10.1111/joes.12552). *Journal of Economic Surveys*
+
+        **Position-Specific Metrics:**
+        - EA Sports FC 25 Player Database (2024)
+
+        **MLS Salary Cap Rules:**
+        - [MLS 2025 Salary Cap Structure](https://phillysoccerpage.net/2025/01/08/mls-salary-cap-details-updated-to-2025/)
+        - [MLS Players Association Salary Data](https://mlsplayers.org/resources/salary-guide)
+
+        **Performance Data:**
+        - [FBref](https://fbref.com) - Advanced Statistics (powered by Opta)
+        """)
 
     # Display summary stats
     st.markdown("---")
@@ -393,10 +489,10 @@ def main():
         st.warning(f"Limited Playing Time: {player_minutes:.0f} minutes ({player_minutes/90:.1f} matches) - Analysis may be less reliable")
 
     if using_prior_season:
-        st.info(f"📊 Using {data_season} season data - Player has insufficient data in 2025 season")
+        st.info(f"Using {data_season} season data - Player has insufficient data in 2025 season")
 
-    # Player info metrics - simplified (removed duplicate tier)
-    col1, col2, col3 = st.columns(3)
+    # Player info metrics - with age highlighted
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
         # Display granular position if available, with position_group as backup
@@ -420,19 +516,68 @@ def main():
         )
 
     with col2:
-        minutes_delta = "⚠️ Low sample size" if under_threshold else None
+        # Display age with peak indicator
+        player_age = result.get('age', 'N/A')
+        if player_age != 'N/A':
+            age_factor = result.get('age_adjustment_factor', 1.0)
+
+            # Determine age status based on both age and factor
+            # Need to identify if low factor is due to youth or decline
+            if age_factor >= 1.15:
+                age_delta = "Peak Years"
+                age_delta_color = "normal"  # Green
+            elif age_factor >= 1.05:
+                age_delta = "Prime"
+                age_delta_color = "normal"  # Green
+            elif age_factor >= 0.95:
+                age_delta = "Established"
+                age_delta_color = "off"  # Gray
+            elif player_age <= 23:
+                # Young player with lower factor = developing
+                age_delta = "Developing"
+                age_delta_color = "off"  # Gray (neutral for young)
+            else:
+                # Older player with lower factor = declining
+                age_delta = "Declining"
+                age_delta_color = "inverse"  # Red
+        else:
+            age_delta = None
+            age_delta_color = "off"
+
         st.metric(
-            "Minutes Played",
-            f"{result['minutes']:.0f}",
-            delta=minutes_delta
+            "Age",
+            player_age,
+            delta=age_delta,
+            delta_color=age_delta_color,
+            help=f"Age-based adjustment: {result.get('age_adjustment_factor', 1.0):.2f}x" if player_age != 'N/A' else None
         )
 
     with col3:
-        season_delta = "⏮️ Prior season" if using_prior_season else "✓ Current"
+        if under_threshold:
+            minutes_delta = "Low sample size"
+            minutes_color = "inverse"  # Red warning
+        else:
+            minutes_delta = None
+            minutes_color = "off"
+        st.metric(
+            "Minutes Played",
+            f"{result['minutes']:.0f}",
+            delta=minutes_delta,
+            delta_color=minutes_color
+        )
+
+    with col4:
+        if using_prior_season:
+            season_delta = "Prior season"
+            season_color = "inverse"  # Red warning
+        else:
+            season_delta = "Current"
+            season_color = "normal"  # Green good
         st.metric(
             "Data Season",
             f"{data_season}",
-            delta=season_delta
+            delta=season_delta,
+            delta_color=season_color
         )
 
     # Salary estimation
@@ -442,23 +587,93 @@ def main():
         st.markdown("---")
         st.header("Contract Recommendation")
 
+        # Calculate adjusted salary based on toggles
+        base_salary = est['predicted_salary']
+        final_salary = base_salary
+        adjustments = []
+
+        # Apply age adjustment if enabled
+        if apply_age_adjustment and 'age_adjusted_salary' in result:
+            final_salary = result['age_adjusted_salary']
+            age_factor = result.get('age_adjustment_factor', 1.0)
+            age_pct = (age_factor - 1) * 100
+            # Show discount vs premium properly
+            if age_pct >= 0:
+                adjustments.append(f"Age Premium: +{age_pct:.1f}% (Age {result.get('age', 'N/A')})")
+            else:
+                adjustments.append(f"Age Discount: -{abs(age_pct):.1f}% (Age {result.get('age', 'N/A')})")
+
+        # Apply championship premium
+        if championship_premium:
+            final_salary *= (1 + champ_pct/100)
+            adjustments.append(f"Championship: +{champ_pct}%")
+
+        # Apply breakout premium
+        if breakout_premium:
+            final_salary *= (1 + breakout_pct/100)
+            adjustments.append(f"Breakout Season: +{breakout_pct}%")
+
+        # Calculate adjusted range
+        if apply_age_adjustment and 'age_adjusted_range_low' in result:
+            adj_low = result['age_adjusted_range_low']
+            adj_high = result['age_adjusted_range_high']
+        else:
+            adj_low = est['salary_range_low']
+            adj_high = est['salary_range_high']
+
+        # Apply same premiums to range
+        if championship_premium:
+            adj_low *= (1 + champ_pct/100)
+            adj_high *= (1 + champ_pct/100)
+        if breakout_premium:
+            adj_low *= (1 + breakout_pct/100)
+            adj_high *= (1 + breakout_pct/100)
+
         # Main salary section
         col1, col2 = st.columns([3, 2])
 
         with col1:
             st.subheader("Recommended Contract Value")
-            st.metric(
-                "Base Salary",
-                f"${est['predicted_salary']/1000:.0f}K",
-                help="Model-predicted fair market value based on peer comparison"
-            )
+
+            # Show base if adjustments applied
+            if adjustments:
+                st.metric(
+                    "Base Statistical Model",
+                    format_salary(base_salary),
+                    help="Peer-based model prediction before adjustments"
+                )
+
+                # Show adjustments
+                with st.expander("Applied Adjustments"):
+                    for adj in adjustments:
+                        st.write(f"• {adj}")
+
+                # Calculate delta properly (can be negative)
+                salary_diff = final_salary - base_salary
+                if salary_diff >= 0:
+                    delta_display = f"+{format_salary(salary_diff)}"
+                else:
+                    delta_display = f"-{format_salary(abs(salary_diff))}"
+
+                st.metric(
+                    "**Final Recommended Salary**",
+                    f"**{format_salary(final_salary)}**",
+                    delta=delta_display,
+                    help="Salary after applying selected adjustments (premiums or discounts)"
+                )
+            else:
+                st.metric(
+                    "Recommended Salary",
+                    format_salary(final_salary),
+                    help="Model-predicted fair market value based on peer comparison"
+                )
 
             st.markdown("##### Negotiation Range (25th-75th percentile)")
             range_col1, range_col2 = st.columns(2)
             with range_col1:
-                st.metric("Low End", f"${est['salary_range_low']/1000:.0f}K")
+                st.metric("Low End", format_salary(adj_low))
             with range_col2:
-                st.metric("High End", f"${est['salary_range_high']/1000:.0f}K")
+                st.metric("High End", format_salary(adj_high))
 
         with col2:
             st.subheader("Player Profile")
@@ -475,83 +690,200 @@ def main():
                 archetype_text = 'Standard Positional Player'
             st.info(f"**{archetype_text}**")
 
-            # Tier probabilities
-            if 'designation_confidence' in result:
-                st.markdown("##### Tier Probabilities")
-                sorted_tiers = sorted(
-                    result['designation_confidence'].items(),
-                    key=lambda x: x[1],
-                    reverse=True
+            # Position-specific salary distribution
+            st.markdown("##### Position Salary Distribution")
+
+            # Get salary distribution for this position
+            position_key = result.get('granular_position') if pd.notna(result.get('granular_position')) else result['position']
+
+            # Filter players by position
+            if 'granular_position' in system.df_master.columns and pd.notna(result.get('granular_position')):
+                position_players = system.df_master[
+                    (system.df_master['granular_position'] == position_key) &
+                    (system.df_master['base_salary'].notna())
+                ]
+            else:
+                position_players = system.df_master[
+                    (system.df_master['position_group'] == position_key) &
+                    (system.df_master['base_salary'].notna())
+                ]
+
+            if len(position_players) > 0:
+                # Create histogram
+                fig_dist = go.Figure()
+
+                # Determine scaling based on max salary in position
+                max_pos_salary = position_players['base_salary'].max()
+                divisor, axis_label = get_salary_axis_config(safe_max(
+                    max_pos_salary,
+                    final_salary
+                ))
+
+                fig_dist.add_trace(go.Histogram(
+                    x=position_players['base_salary'] / divisor,
+                    nbinsx=20,
+                    name='Position Salaries',
+                    marker_color='lightblue',
+                    opacity=0.7
+                ))
+
+                # Add player's recommended salary
+                if final_salary:
+                    fig_dist.add_vline(
+                        x=final_salary / divisor,
+                        line_dash="dash",
+                        line_color="red",
+                        annotation_text="Recommended",
+                        annotation_position="top"
+                    )
+
+                # Add MLS thresholds
+                fig_dist.add_vline(
+                    x=683_750 / divisor,  # Max budget charge
+                    line_dash="dot",
+                    line_color="gray",
+                    annotation_text="TAM Threshold",
+                    annotation_position="bottom left"
                 )
-                for tier, prob in sorted_tiers:
-                    st.progress(prob, text=f"{tier}: {prob:.1%}")
+
+                fig_dist.update_layout(
+                    xaxis_title=axis_label,
+                    yaxis_title="Number of Players",
+                    height=250,
+                    margin=dict(l=0, r=0, t=30, b=0),
+                    showlegend=False
+                )
+
+                st.plotly_chart(fig_dist, use_container_width=True)
+
+                # Show percentile
+                percentile = (position_players['base_salary'] <= final_salary).sum() / len(position_players) * 100
+                st.caption(f"Recommended salary is at {percentile:.0f}th percentile for {position_key} position")
+            else:
+                st.caption("Insufficient position data for distribution")
+
+        # MLS Contract Structure section
+        if 'contract_structure' in result:
+            st.markdown("---")
+            st.subheader("MLS Contract Structure")
+
+            contract = result['contract_structure']
+
+            # Create contract summary
+            struct_col1, struct_col2 = st.columns(2)
+
+            with struct_col1:
+                st.metric(
+                    "Designation",
+                    contract['designation'],
+                    help="Roster designation based on 2025 MLS rules"
+                )
+
+            with struct_col2:
+                st.metric(
+                    "Budget Charge",
+                    format_salary(contract['budget_charge']),
+                    help="Amount counting against salary cap"
+                )
+
+            # Show allocation money details
+            if contract.get('allocation_money_needed', 0) > 0:
+                st.info(
+                    f"Requires {format_salary(contract['allocation_money_needed'])} "
+                    f"{contract['allocation_type']} to buy down to max budget charge"
+                )
+
+            # Show TAM buydown option for DPs
+            if 'tam_buydown_option' in contract:
+                with st.expander("TAM Buydown Option"):
+                    tam_opt = contract['tam_buydown_option']
+                    st.write(f"**Cost:** {format_salary(tam_opt['tam_needed'])} TAM")
+                    st.write(f"**Result:** {tam_opt['new_designation']} with {format_salary(tam_opt['new_budget_charge'])} charge")
+                    st.write("This removes the DP tag while staying under the TAM threshold.")
 
         # Current salary comparison
         if 'actual_salary' in result and result['actual_salary']:
             st.markdown("---")
             st.subheader("Current Salary vs Recommendation")
 
-            diff = est['predicted_salary'] - result['actual_salary']
+            diff = final_salary - result['actual_salary']
             diff_pct = (diff / result['actual_salary']) * 100
 
             current_col1, current_col2 = st.columns(2)
 
             with current_col1:
-                st.metric("Current Salary", f"${result['actual_salary']/1000:.0f}K")
+                st.metric("Current Salary", format_salary(result['actual_salary']))
 
             with current_col2:
                 if diff > 0:
                     st.metric(
                         "Market Adjustment",
-                        f"+${abs(diff)/1000:.0f}K",
+                        f"+{format_salary(abs(diff))}",
                         f"{abs(diff_pct):.1f}% underpaid"
                     )
                 else:
                     st.metric(
                         "Market Adjustment",
-                        f"-${abs(diff)/1000:.0f}K",
+                        f"-{format_salary(abs(diff))}",
                         f"{abs(diff_pct):.1f}% overpaid"
                     )
 
         # Salary range visualization
         st.markdown("### Salary Range Analysis")
 
-        fig = go.Figure()
+        try:
+            fig = go.Figure()
 
-        # Add peer range
-        fig.add_trace(go.Scatter(
-            x=[est['peer_min']/1000, est['peer_max']/1000],
-            y=['Peer Range', 'Peer Range'],
-            mode='lines',
-            line=dict(color='lightgray', width=8),
-            name='Peer Range',
-            showlegend=True
-        ))
+            # Determine scaling based on max salary in the chart
+            max_val = safe_max(
+                est.get('peer_max'),
+                final_salary,
+                result.get('actual_salary')
+            )
+            divisor, axis_label = get_salary_axis_config(max_val)
+        except Exception as e:
+            st.error(f"Error creating salary range chart: {str(e)}")
+            st.write(f"Debug - peer_max: {est.get('peer_max')}, final_salary: {final_salary}, actual: {result.get('actual_salary')}")
+            divisor, axis_label = 1000, "Salary ($K)"
+            fig = go.Figure()
 
-        # Add IQR range
-        fig.add_trace(go.Scatter(
-            x=[est['salary_range_low']/1000, est['salary_range_high']/1000],
-            y=['Negotiation Range', 'Negotiation Range'],
-            mode='lines',
-            line=dict(color='blue', width=12),
-            name='25th-75th Percentile',
-            showlegend=True
-        ))
+        # Add peer range (only if values exist)
+        if est.get('peer_min') is not None and est.get('peer_max') is not None:
+            fig.add_trace(go.Scatter(
+                x=[est['peer_min']/divisor, est['peer_max']/divisor],
+                y=['Peer Range', 'Peer Range'],
+                mode='lines',
+                line=dict(color='lightgray', width=8),
+                name='Peer Range',
+                showlegend=True
+            ))
 
-        # Add recommended salary
-        fig.add_trace(go.Scatter(
-            x=[est['predicted_salary']/1000],
-            y=['Recommended'],
-            mode='markers',
-            marker=dict(color='green', size=15, symbol='diamond'),
-            name='Recommended',
-            showlegend=True
-        ))
+        # Add IQR range (only if values exist)
+        if est.get('salary_range_low') is not None and est.get('salary_range_high') is not None:
+            fig.add_trace(go.Scatter(
+                x=[est['salary_range_low']/divisor, est['salary_range_high']/divisor],
+                y=['Negotiation Range', 'Negotiation Range'],
+                mode='lines',
+                line=dict(color='blue', width=12),
+                name='25th-75th Percentile',
+                showlegend=True
+            ))
+
+        # Add recommended salary (only if value exists)
+        if est.get('predicted_salary') is not None:
+            fig.add_trace(go.Scatter(
+                x=[est['predicted_salary']/divisor],
+                y=['Recommended'],
+                mode='markers',
+                marker=dict(color='green', size=15, symbol='diamond'),
+                name='Recommended',
+                showlegend=True
+            ))
 
         # Add current salary if available
         if result.get('actual_salary'):
             fig.add_trace(go.Scatter(
-                x=[result['actual_salary']/1000],
+                x=[result['actual_salary']/divisor],
                 y=['Current'],
                 mode='markers',
                 marker=dict(color='red', size=15, symbol='star'),
@@ -560,7 +892,7 @@ def main():
             ))
 
         fig.update_layout(
-            xaxis_title="Salary ($K)",
+            xaxis_title=axis_label,
             yaxis_title="",
             height=300,
             showlegend=True,
@@ -589,7 +921,7 @@ def main():
             peer_data.append({
                 'Rank': i,
                 'Player': name,
-                'Salary': f"${salary/1000:.0f}K"
+                'Salary': format_salary(salary)
             })
 
         df_peers = pd.DataFrame(peer_data)
@@ -638,22 +970,29 @@ def main():
             st.warning("Could not load peer comparison data")
 
         # Peer salary distribution - collapsible for advanced users
-        with st.expander("📊 View Peer Salary Distribution"):
+        with st.expander("View Peer Salary Distribution"):
+            # Determine scaling based on max peer salary
+            divisor, axis_label = get_salary_axis_config(safe_max(
+                *est['peer_salaries'],
+                final_salary,
+                result.get('actual_salary')
+            ))
+
             # Create dataframe with numeric salary values for histogram
             peer_salary_data = pd.DataFrame({
-                'Salary ($K)': [s/1000 for s in est['peer_salaries']]
+                axis_label: [s/divisor for s in est['peer_salaries']]
             })
 
             fig = px.histogram(
                 peer_salary_data,
-                x='Salary ($K)',
+                x=axis_label,
                 nbins=10,
-                labels={'Salary ($K)': 'Salary ($K)', 'count': 'Number of Players'}
+                labels={axis_label: axis_label, 'count': 'Number of Players'}
             )
 
             # Add vertical line for recommended salary
             fig.add_vline(
-                x=est['predicted_salary']/1000,
+                x=est['predicted_salary']/divisor,
                 line_dash="dash",
                 line_color="green",
                 annotation_text="Recommended",
@@ -663,7 +1002,7 @@ def main():
             # Add vertical line for current salary if available
             if result.get('actual_salary'):
                 fig.add_vline(
-                    x=result['actual_salary']/1000,
+                    x=result['actual_salary']/divisor,
                     line_dash="dash",
                     line_color="red",
                     annotation_text="Current",
