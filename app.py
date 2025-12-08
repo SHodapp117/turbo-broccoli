@@ -14,6 +14,8 @@ import plotly.graph_objects as go
 # Helper function for consistent salary formatting
 def format_salary(salary):
     """Format salary consistently - K for thousands, M for millions"""
+    if salary is None:
+        return "N/A"
     if salary >= 1_000_000:
         return f"${salary/1_000_000:.2f}M"
     else:
@@ -618,16 +620,17 @@ def main():
             adj_low = result['age_adjusted_range_low']
             adj_high = result['age_adjusted_range_high']
         else:
-            adj_low = est['salary_range_low']
-            adj_high = est['salary_range_high']
+            adj_low = est.get('salary_range_low')
+            adj_high = est.get('salary_range_high')
 
-        # Apply same premiums to range
-        if championship_premium:
-            adj_low *= (1 + champ_pct/100)
-            adj_high *= (1 + champ_pct/100)
-        if breakout_premium:
-            adj_low *= (1 + breakout_pct/100)
-            adj_high *= (1 + breakout_pct/100)
+        # Apply same premiums to range (only if values exist)
+        if adj_low is not None and adj_high is not None:
+            if championship_premium:
+                adj_low *= (1 + champ_pct/100)
+                adj_high *= (1 + champ_pct/100)
+            if breakout_premium:
+                adj_low *= (1 + breakout_pct/100)
+                adj_high *= (1 + breakout_pct/100)
 
         # Main salary section
         col1, col2 = st.columns([3, 2])
@@ -668,12 +671,13 @@ def main():
                     help="Model-predicted fair market value based on peer comparison"
                 )
 
-            st.markdown("##### Negotiation Range (25th-75th percentile)")
-            range_col1, range_col2 = st.columns(2)
-            with range_col1:
-                st.metric("Low End", format_salary(adj_low))
-            with range_col2:
-                st.metric("High End", format_salary(adj_high))
+            if adj_low is not None and adj_high is not None:
+                st.markdown("##### Negotiation Range (25th-75th percentile)")
+                range_col1, range_col2 = st.columns(2)
+                with range_col1:
+                    st.metric("Low End", format_salary(adj_low))
+                with range_col2:
+                    st.metric("High End", format_salary(adj_high))
 
         with col2:
             st.subheader("Player Profile")
@@ -756,9 +760,10 @@ def main():
 
                 st.plotly_chart(fig_dist, use_container_width=True)
 
-                # Show percentile
-                percentile = (position_players['base_salary'] <= final_salary).sum() / len(position_players) * 100
-                st.caption(f"Recommended salary is at {percentile:.0f}th percentile for {position_key} position")
+                # Show percentile (only if final_salary exists)
+                if final_salary is not None:
+                    percentile = (position_players['base_salary'] <= final_salary).sum() / len(position_players) * 100
+                    st.caption(f"Recommended salary is at {percentile:.0f}th percentile for {position_key} position")
             else:
                 st.caption("Insufficient position data for distribution")
 
@@ -802,7 +807,7 @@ def main():
                     st.write("This removes the DP tag while staying under the TAM threshold.")
 
         # Current salary comparison
-        if 'actual_salary' in result and result['actual_salary']:
+        if 'actual_salary' in result and result['actual_salary'] and final_salary is not None:
             st.markdown("---")
             st.subheader("Current Salary vs Recommendation")
 
@@ -858,10 +863,10 @@ def main():
                 showlegend=True
             ))
 
-        # Add IQR range (only if values exist)
-        if est.get('salary_range_low') is not None and est.get('salary_range_high') is not None:
+        # Add IQR range (use adj_low/adj_high with adjustments applied, not base range)
+        if adj_low is not None and adj_high is not None:
             fig.add_trace(go.Scatter(
-                x=[est['salary_range_low']/divisor, est['salary_range_high']/divisor],
+                x=[adj_low/divisor, adj_high/divisor],
                 y=['Negotiation Range', 'Negotiation Range'],
                 mode='lines',
                 line=dict(color='blue', width=12),
@@ -869,10 +874,10 @@ def main():
                 showlegend=True
             ))
 
-        # Add recommended salary (only if value exists)
-        if est.get('predicted_salary') is not None:
+        # Add recommended salary (use final_salary with adjustments, not base predicted_salary)
+        if final_salary is not None:
             fig.add_trace(go.Scatter(
-                x=[est['predicted_salary']/divisor],
+                x=[final_salary/divisor],
                 y=['Recommended'],
                 mode='markers',
                 marker=dict(color='green', size=15, symbol='diamond'),
@@ -904,7 +909,7 @@ def main():
         # K-NN Peers
         st.header("Statistical Peers")
 
-        with st.expander("ℹ️ About Peer Comparison"):
+        with st.expander("About Peer Comparison"):
             st.markdown(
                 f"""
                 **How peer comparison works:**
@@ -990,9 +995,9 @@ def main():
                 labels={axis_label: axis_label, 'count': 'Number of Players'}
             )
 
-            # Add vertical line for recommended salary
+            # Add vertical line for recommended salary (use final_salary with adjustments)
             fig.add_vline(
-                x=est['predicted_salary']/divisor,
+                x=final_salary/divisor,
                 line_dash="dash",
                 line_color="green",
                 annotation_text="Recommended",
