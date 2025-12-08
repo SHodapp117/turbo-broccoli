@@ -340,9 +340,43 @@ class PlayerValuationSystem:
         print(f"CLASSIFIERS TRAINED: {len(self.designation_classifiers)}")
         print("="*60)
 
-    def _get_features_for_position(self, position: str) -> List[str]:
-        """Get relevant features for position"""
+    def _get_features_for_position(self, position: str, granular_position: str = None) -> List[str]:
+        """
+        Get relevant features for position, using granular position if available.
+        Goes from specific (FC25 positions) to broad (FBref groups).
+        """
 
+        # Define granular position-specific feature sets
+        granular_features = {
+            # Forwards
+            'ST': ['goals_per_90', 'xG', 'npxG', 'Sh', 'SoT', 'G/Sh', 'npxG/Shot', 'xg_overperformance', 'Touches', 'CPA'],
+            'CF': ['goals_per_90', 'assists_per_90', 'xG', 'xAG', 'SCA90', 'GCA90', 'Touches', 'Succ%', 'PrgC'],
+            'LW': ['goals_per_90', 'assists_per_90', 'xG', 'xAG', 'Succ%', 'PrgC', 'CPA', 'CrsPA', 'SCA90'],
+            'RW': ['goals_per_90', 'assists_per_90', 'xG', 'xAG', 'Succ%', 'PrgC', 'CPA', 'CrsPA', 'SCA90'],
+
+            # Midfielders - Attacking
+            'CAM': ['assists_per_90', 'xAG', 'KP', 'SCA90', 'GCA90', 'PPA', 'CrsPA', 'xG', 'Sh/90'],
+            'LM': ['assists_per_90', 'xAG', 'PrgC', 'PrgP', 'Succ%', 'CrsPA', 'SCA90', 'KP'],
+            'RM': ['assists_per_90', 'xAG', 'PrgC', 'PrgP', 'Succ%', 'CrsPA', 'SCA90', 'KP'],
+
+            # Midfielders - Central
+            'CM': ['PrgP', 'Cmp%', 'KP', 'xAG', 'Tkl+Int', 'progressive_actions', 'defensive_actions', 'Ball Recoveries'],
+            'CDM': ['defensive_actions', 'Tkl+Int', 'Tkl%', 'Int', 'Ball Recoveries', 'PrgP', 'Cmp%', 'Blocks'],
+
+            # Defenders
+            'CB': ['defensive_actions', 'Tkl+Int', 'Int', 'Blocks', 'Ball Recoveries', 'Cmp%', 'PrgP', 'Aerials won%'],
+            'LB': ['defensive_actions', 'Tkl+Int', 'PrgC', 'PrgP', 'Cmp%', 'CrsPA', 'Succ%', 'Ball Recoveries'],
+            'RB': ['defensive_actions', 'Tkl+Int', 'PrgC', 'PrgP', 'Cmp%', 'CrsPA', 'Succ%', 'Ball Recoveries'],
+
+            # Goalkeeper
+            'GK': ['Saves', 'Save%', 'CS%', 'GA', 'SoTA', 'Post-Shot Expected Goals', 'Cmp%', 'Launch%']
+        }
+
+        # Try granular position first
+        if granular_position and granular_position in granular_features:
+            return granular_features[granular_position]
+
+        # Fallback to broad position groups
         common = ['goals_per_90', 'assists_per_90', 'xG', 'npxG', 'Minutes',
                   'xg_overperformance', 'progressive_actions']
 
@@ -387,15 +421,39 @@ class PlayerValuationSystem:
         """
 
         position = player_stats['position_group']
+        granular_position = player_stats.get('granular_position')
         designation = player_stats.get('predicted_designation', player_stats.get('designation_tier'))
 
-        # Get peers: same position + designation, with salary data
-        df_peers = self.df_master[
-            (self.df_master['position_group'] == position) &
-            (self.df_master['designation_tier'] == designation) &
-            (self.df_master['base_salary'].notna()) &
-            (self.df_master['Minutes'] >= 900)
-        ].copy()
+        # Get peers: Try granular position first, then fall back to position group
+        if granular_position and pd.notna(granular_position):
+            # Try to find peers with same granular position first
+            df_peers = self.df_master[
+                (self.df_master['granular_position'] == granular_position) &
+                (self.df_master['designation_tier'] == designation) &
+                (self.df_master['base_salary'].notna()) &
+                (self.df_master['Minutes'] >= 900)
+            ].copy()
+
+            # If not enough granular peers, fall back to position group
+            if len(df_peers) < 5:
+                df_peers = self.df_master[
+                    (self.df_master['position_group'] == position) &
+                    (self.df_master['designation_tier'] == designation) &
+                    (self.df_master['base_salary'].notna()) &
+                    (self.df_master['Minutes'] >= 900)
+                ].copy()
+                peer_level = 'position_group'
+            else:
+                peer_level = 'granular_position'
+        else:
+            # No granular position, use position group
+            df_peers = self.df_master[
+                (self.df_master['position_group'] == position) &
+                (self.df_master['designation_tier'] == designation) &
+                (self.df_master['base_salary'].notna()) &
+                (self.df_master['Minutes'] >= 900)
+            ].copy()
+            peer_level = 'position_group'
 
         if len(df_peers) < 5:
             return {
@@ -403,8 +461,8 @@ class PlayerValuationSystem:
                 'peers_found': len(df_peers)
             }
 
-        # Features for similarity
-        feature_cols = self._get_features_for_position(position)
+        # Features for similarity - use granular position features if available
+        feature_cols = self._get_features_for_position(position, granular_position)
 
         # Filter to features that exist in the data
         available_features = [f for f in feature_cols if f in df_peers.columns]
@@ -431,7 +489,9 @@ class PlayerValuationSystem:
             'peer_max': peer_salaries.max(),
             'n_peers': len(peer_players),
             'peer_names': peer_players['Player'].tolist()[:5],  # Top 5 most similar
-            'peer_salaries': peer_salaries[:5].tolist()
+            'peer_salaries': peer_salaries[:5].tolist(),
+            'peer_level': peer_level,  # 'granular_position' or 'position_group'
+            'features_used': available_features  # Track which features were used for comparison
         }
 
     def value_player(self, player_name: str) -> Dict:
@@ -536,6 +596,13 @@ class PlayerValuationSystem:
             print(f"\nEstimated Salary Range:")
             print(f"  Median: ${salary_est['predicted_salary']/1000:.0f}K")
             print(f"  Range (25th-75th): ${salary_est['salary_range_low']/1000:.0f}K - ${salary_est['salary_range_high']/1000:.0f}K")
+
+            # Show peer matching level
+            peer_level = salary_est.get('peer_level', 'position_group')
+            if peer_level == 'granular_position':
+                print(f"  Peer Match: Granular position ({player.get('granular_position', 'N/A')})")
+            else:
+                print(f"  Peer Match: Position group ({position})")
             print(f"  Peer Range: ${salary_est['peer_min']/1000:.0f}K - ${salary_est['peer_max']/1000:.0f}K")
             print(f"  Based on {salary_est['n_peers']} similar players")
 

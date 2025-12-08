@@ -201,7 +201,10 @@ def main():
     st.sidebar.header("Player Selection Filters")
 
     # Get all player data with position info from the system
-    all_player_data = system.df_master[['Player', 'position_group']].drop_duplicates()
+    position_cols = ['Player', 'position_group']
+    if 'granular_position' in system.df_master.columns:
+        position_cols.append('granular_position')
+    all_player_data = system.df_master[position_cols].drop_duplicates()
 
     # Merge with free agents to get position data
     fa_with_position = fa_df.merge(
@@ -220,14 +223,38 @@ def main():
     if selected_team != "All Teams":
         temp_filtered = temp_filtered[temp_filtered['team'] == selected_team]
 
-    # Position filter (dynamic based on team)
-    available_positions = sorted(temp_filtered['position_group'].dropna().unique().tolist())
-    all_positions = ["All Positions"] + available_positions
-    selected_position = st.sidebar.selectbox("Position", all_positions, key='position_filter')
+    # Position filter (dynamic based on team) - with both FBref groups and FC25 granular positions
+    st.sidebar.markdown("**Position Filters:**")
 
-    # Apply position filter
-    if selected_position != "All Positions":
-        temp_filtered = temp_filtered[temp_filtered['position_group'] == selected_position]
+    # FBref Position Group filter
+    available_position_groups = sorted(temp_filtered['position_group'].dropna().unique().tolist())
+    all_position_groups = ["All"] + available_position_groups
+    selected_position_group = st.sidebar.selectbox(
+        "Position Group (FBref)",
+        all_position_groups,
+        key='position_group_filter',
+        help="Broad position categories: GK, DF, MF, FW"
+    )
+
+    # Apply position group filter
+    if selected_position_group != "All":
+        temp_filtered = temp_filtered[temp_filtered['position_group'] == selected_position_group]
+
+    # FC25 Granular Position filter (if available)
+    if 'granular_position' in temp_filtered.columns:
+        available_granular = sorted(temp_filtered['granular_position'].dropna().unique().tolist())
+        if available_granular:
+            all_granular = ["All"] + available_granular
+            selected_granular = st.sidebar.selectbox(
+                "Specific Position (FC25)",
+                all_granular,
+                key='granular_position_filter',
+                help="Detailed positions: CB, ST, CDM, CAM, LW, RW, etc."
+            )
+
+            # Apply granular position filter
+            if selected_granular != "All":
+                temp_filtered = temp_filtered[temp_filtered['granular_position'] == selected_granular]
 
     # Player name filter (dynamic based on team and position)
     available_players = sorted(temp_filtered['name'].unique().tolist())
