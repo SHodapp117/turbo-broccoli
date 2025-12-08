@@ -971,6 +971,53 @@ def main():
                         st.plotly_chart(fig, use_container_width=True)
                     else:
                         st.info(f"Insufficient data for {category_name} comparison")
+
+                    # Add numeric stat values table
+                    st.markdown(f"##### {category_name} - Numeric Values")
+
+                    # Get player row
+                    player_row = comparison_df[comparison_df['Player'] == selected_player]
+
+                    if len(player_row) > 0:
+                        player_row = player_row.iloc[0]
+
+                        # Build table data
+                        table_data = []
+                        for stat, label in zip(category_info['stats'], category_info['labels']):
+                            if stat in comparison_df.columns:
+                                # Get player value
+                                player_val = player_row[stat] if pd.notna(player_row[stat]) else 0
+
+                                # Calculate percentiles among peers
+                                peer_values = comparison_df[comparison_df['Player'].isin(est['peer_names'][:5])][stat].fillna(0)
+                                all_values = list(peer_values) + [player_val]
+
+                                # 50th percentile (median)
+                                percentile_50 = np.median(all_values)
+
+                                # 100th percentile (max)
+                                percentile_100 = np.max(all_values)
+
+                                table_data.append({
+                                    'Stat': label,
+                                    'Player Value': f"{player_val:.2f}",
+                                    '50th Percentile': f"{percentile_50:.2f}",
+                                    '100th Percentile': f"{percentile_100:.2f}"
+                                })
+
+                        if table_data:
+                            stats_table = pd.DataFrame(table_data)
+                            st.dataframe(
+                                stats_table,
+                                use_container_width=True,
+                                hide_index=True,
+                                column_config={
+                                    "Stat": st.column_config.TextColumn("Stat", width="medium"),
+                                    "Player Value": st.column_config.TextColumn("Player Value", width="small"),
+                                    "50th Percentile": st.column_config.TextColumn("50th Percentile", width="small"),
+                                    "100th Percentile": st.column_config.TextColumn("100th Percentile", width="small")
+                                }
+                            )
         else:
             st.warning("Could not load peer comparison data")
 
