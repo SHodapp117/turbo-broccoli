@@ -29,6 +29,112 @@ def safe_max(*values):
             filtered.append(v)
     return max(filtered) if filtered else 0
 
+def ordinal(n):
+    """Convert number to ordinal string (1st, 2nd, 3rd, etc.)"""
+    if 10 <= n % 100 <= 20:
+        suffix = 'th'
+    else:
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+    return f"{int(n)}{suffix}"
+
+def clean_stat_name(stat_name):
+    """Convert abbreviated stat names to readable versions"""
+    # Mapping of common FBref abbreviations to readable names
+    stat_mapping = {
+        # Aerial/Physical
+        'Lost': 'Aerials Lost',
+        'Won': 'Aerials Won',
+        'Won%': 'Aerial Win %',
+
+        # Possession/Dribbling
+        'DIs': 'Dispossessed',
+        'Mis': 'Miscontrols',
+        'Succ': 'Successful Dribbles',
+        'Succ%': 'Dribble Success %',
+        'Att': 'Dribble Attempts',
+
+        # Defensive
+        'Tkl': 'Tackles',
+        'TklW': 'Tackles Won',
+        'Tkl%': 'Tackle Success %',
+        'Def 3rd': 'Tackles Def 3rd',
+        'Mid 3rd': 'Tackles Mid 3rd',
+        'Att 3rd': 'Tackles Att 3rd',
+        'Int': 'Interceptions',
+        'Tkl+Int': 'Tackles + Interceptions',
+        'Clr': 'Clearances',
+        'Err': 'Errors',
+
+        # Passing
+        'Cmp': 'Passes Completed',
+        'Cmp%': 'Pass Completion %',
+        'Cmp%.1': 'Medium Pass %',
+        'Att.1': 'Pass Attempts',
+        'Prg': 'Progressive Passes',
+        'KP': 'Key Passes',
+        'PPA': 'Passes to Penalty Area',
+        'CrsPA': 'Crosses to Penalty Area',
+
+        # Shooting
+        'Sh': 'Shots',
+        'Sh/90': 'Shots per 90',
+        'SoT': 'Shots on Target',
+        'SoT%': 'Shot Accuracy %',
+        'G/Sh': 'Goals per Shot',
+        'G/SoT': 'Goals per Shot on Target',
+        'Dist': 'Shot Distance',
+        'FK': 'Free Kick Shots',
+
+        # Creation
+        'SCA': 'Shot Creating Actions',
+        'SCA90': 'Shot Creating Actions per 90',
+        'GCA': 'Goal Creating Actions',
+        'GCA90': 'Goal Creating Actions per 90',
+
+        # Carries
+        'PrgC': 'Progressive Carries',
+        'CPA': 'Carries to Penalty Area',
+        'PrgDist': 'Progressive Carry Distance',
+
+        # Expected Stats
+        'xG': 'Expected Goals',
+        'npxG': 'Non-Penalty xG',
+        'npxG/Sh': 'npxG per Shot',
+        'xAG': 'Expected Assisted Goals',
+        'xA': 'Expected Assists',
+
+        # Goalkeeper
+        'GA': 'Goals Against',
+        'SoTA': 'Shots on Target Against',
+        'Save%': 'Save %',
+        'PSxG': 'Post-Shot xG',
+        'PSxG-GA': 'PSxG minus Goals Against',
+        'PSxG-GA/90': 'PSxG-GA per 90',
+        '#OPA': 'Defensive Actions Outside Penalty',
+        '#OPA/90': 'Defensive Actions Outside Penalty per 90',
+        'Avg.6': 'Average Distance of Def Actions',
+        'Stp': 'Crosses Stopped',
+        'Stp%': 'Cross Stop %',
+        'Launch%': 'Launch %',
+        'Launch%.1': 'Goal Kick Launch %',
+        'Launch%.2': 'Def 3rd Launch %',
+        'Avg': 'Average Pass Length',
+        'Avg.1': 'Goal Kick Avg Length',
+        'Avg.3': 'Def 3rd Avg Length',
+        'Att (GK)': 'Pass Attempts',
+
+        # General
+        'Tot': 'Total Passes',
+        'Blocks': 'Blocks',
+        'Touches': 'Touches',
+        'Carries': 'Carries',
+        'Ball Recoveries': 'Ball Recoveries',
+        'Recov': 'Ball Recoveries'
+    }
+
+    # Return mapped name if exists, otherwise return original
+    return stat_mapping.get(stat_name, stat_name)
+
 def get_salary_axis_config(max_salary):
     """
     Determine appropriate axis scaling and label for salary charts.
@@ -141,6 +247,81 @@ def get_peer_comparison_data(system, player_name, peer_names):
 
     return df, stat_categories
 
+def get_position_comparison_data(system, player_name):
+    """Get all players in the same position for league-wide radar charts"""
+
+    # Get the player's position
+    player_matches = system.df_master[system.df_master['Player'] == player_name]
+    if len(player_matches) == 0:
+        return None
+
+    player_row = player_matches.iloc[0]
+    is_gk = player_row['Pos'] == 'GK' if 'Pos' in player_row else False
+
+    # Try to get granular position first, fallback to FBref position
+    if 'granular_position' in player_row and pd.notna(player_row['granular_position']):
+        position_key = player_row['granular_position']
+        position_column = 'granular_position'
+    elif 'position_group' in player_row and pd.notna(player_row['position_group']):
+        position_key = player_row['position_group']
+        position_column = 'position_group'
+    else:
+        # Fallback to Pos column
+        position_key = player_row['Pos']
+        position_column = 'Pos'
+
+    # Filter to all players at this position with minimum minutes
+    df = system.df_master[
+        (system.df_master[position_column] == position_key) &
+        (system.df_master['Minutes'] >= 270)
+    ].copy()
+
+    # Define stat categories (same as peer comparison)
+    if is_gk:
+        stat_categories = {
+            'Shot Stopping': {
+                'stats': ['Post-Shot Expected Goals', 'PSxG-GAPost-Shot Expected Goals minus Goals AllowedPositive numbers suggest better luck or an above average ability to stop shotsPSxG is expected goals based on how likely the goalkeeper is to save the shotNote', 'PSxG-GA/90Post-Shot Expected Goals minus Goals Allowed per 90 minutesPositive numbers suggest better luck or an above average ability to stop shotsPSxG is expected goals based on how likely the goalkeeper is to save the shotNote', 'GA', 'Post-Shot Expected Goals per Shot on Target'],
+                'labels': ['PSxG', 'PSxG-GA', 'PSxG-GA/90', 'Goals Against', 'PSxG per SoT']
+            },
+            'Distribution': {
+                'stats': ['Cmp%', 'Prg', 'Launch%', 'Avg', 'Tot'],
+                'labels': ['Pass Accuracy', 'Progressive Passes', 'Launch %', 'Avg Pass Length', 'Total Passes']
+            },
+            'Sweeping': {
+                'stats': ['#OPA', '#OPA/90', 'Avg.6', 'Stp', 'Stp%'],
+                'labels': ['Def Actions Outside Pen', 'Def Actions/90', 'Avg Distance', 'Crosses Stopped', 'Cross Stop %']
+            },
+            'Passing Under Pressure': {
+                'stats': ['Att (GK)', 'Launch%.1', 'Avg.1', 'Launch%.2', 'Avg.3'],
+                'labels': ['Pass Attempts', 'Goal Kick Launch %', 'GK Avg Length', 'Def 3rd Launch %', 'Def 3rd Avg Length']
+            }
+        }
+    else:
+        stat_categories = {
+            'Shooting': {
+                'stats': ['Sh/90', 'SoT%', 'G/Sh', 'npxG/Shot', 'xG'],
+                'labels': ['Shots/90', 'Shot Accuracy', 'Goal Conversion', 'npxG/Shot', 'xG']
+            },
+            'Passing': {
+                'stats': ['Cmp%', 'Prg', 'KP', 'xA', 'Cmp%.1'],
+                'labels': ['Pass Accuracy', 'Progressive Passes', 'Key Passes', 'xA', 'Medium Pass %']
+            },
+            'Possession': {
+                'stats': ['Touches', 'Succ%', 'Carries', 'PrgC', 'CPA'],
+                'labels': ['Touches', 'Dribble Success', 'Carries', 'Progressive Carries', 'Carries to Penalty']
+            },
+            'Defensive': {
+                'stats': ['Tkl+Int', 'Tkl%', 'Blocks', 'Int', 'Ball Recoveries'],
+                'labels': ['Tackles+Int', 'Tackle Success', 'Blocks', 'Interceptions', 'Ball Recoveries']
+            },
+            'Creation': {
+                'stats': ['SCA90', 'GCA90', 'xAG', 'PPA', 'CrsPA'],
+                'labels': ['Shot Creating/90', 'Goal Creating/90', 'xAG', 'Passes to Penalty', 'Crosses to Penalty']
+            }
+        }
+
+    return df, stat_categories, position_key
+
 def create_radar_chart(df, player_name, peer_names, category_name, stats, labels):
     """Create a radar chart comparing player to peers"""
 
@@ -178,24 +359,24 @@ def create_radar_chart(df, player_name, peer_names, category_name, stats, labels
     # Create figure
     fig = go.Figure()
 
-    # Add peer average (grey)
+    # Add peer average (orange)
     fig.add_trace(go.Scatterpolar(
         r=peer_values + [peer_values[0]],  # Close the shape
         theta=labels + [labels[0]],
         fill='toself',
-        fillcolor='rgba(128, 128, 128, 0.2)',
-        line=dict(color='grey', width=2),
+        fillcolor='rgba(255, 165, 0, 0.2)',
+        line=dict(color='orange', width=2),
         name='Peer Average',
         hovertemplate='%{theta}: 50th percentile<extra></extra>'
     ))
 
-    # Add player (black)
+    # Add player (red)
     fig.add_trace(go.Scatterpolar(
         r=player_values + [player_values[0]],  # Close the shape
         theta=labels + [labels[0]],
         fill='toself',
-        fillcolor='rgba(0, 0, 0, 0.1)',
-        line=dict(color='black', width=3),
+        fillcolor='rgba(255, 0, 0, 0.1)',
+        line=dict(color='red', width=3),
         name=player_name,
         hovertemplate='%{theta}: %{r:.0f}th percentile<extra></extra>'
     ))
@@ -212,6 +393,159 @@ def create_radar_chart(df, player_name, peer_names, category_name, stats, labels
         ),
         showlegend=True,
         title=f"{category_name} Performance vs Peers",
+        height=400
+    )
+
+    return fig
+
+def get_top_bottom_stats(system, player_name, n=3):
+    """
+    Get the top N and bottom N statistics for a player compared to all players at their FBref position.
+
+    Returns:
+        dict with 'top_stats', 'bottom_stats', 'position', 'total_players'
+    """
+    # Get player data
+    player_matches = system.df_master[system.df_master['Player'] == player_name]
+    if len(player_matches) == 0:
+        return None
+
+    player_row = player_matches.iloc[0]
+
+    # Get FBref position
+    fbref_position = player_row['Pos'] if 'Pos' in player_row else None
+    if not fbref_position:
+        return None
+
+    # Filter to all players at this FBref position with minimum minutes
+    position_df = system.df_master[
+        (system.df_master['Pos'] == fbref_position) &
+        (system.df_master['Minutes'] >= 270)
+    ].copy()
+
+    if len(position_df) < 5:
+        return None
+
+    # Get all numeric columns (stats)
+    numeric_cols = position_df.select_dtypes(include=[np.number]).columns.tolist()
+
+    # Exclude non-stat columns
+    exclude_cols = ['Minutes', 'Season', 'data_season', 'base_salary', 'compensation',
+                    'year_int', 'Age', 'Born', 'MP', 'Starts', 'Min', '90s']
+    stat_cols = [col for col in numeric_cols if col not in exclude_cols]
+
+    # Calculate percentile ranks for all stats
+    stat_percentiles = []
+    for stat in stat_cols:
+        if stat not in position_df.columns:
+            continue
+
+        # Get player value
+        player_val = player_row[stat] if pd.notna(player_row[stat]) else 0
+
+        # Get all position values
+        position_values = position_df[stat].fillna(0).values
+
+        # Skip if all values are the same or zero
+        if len(set(position_values)) <= 1:
+            continue
+
+        # Calculate percentile for sorting
+        percentile = (np.sum(position_values <= player_val) / len(position_values)) * 100
+
+        # Calculate cardinal rank (1 = best, higher = worse)
+        cardinal_rank = np.sum(position_values > player_val) + 1
+
+        stat_percentiles.append({
+            'stat': stat,
+            'player_value': player_val,
+            'percentile': percentile,  # Keep for sorting
+            'cardinal_rank': cardinal_rank,
+            'position_median': np.median(position_values),
+            'position_max': np.max(position_values)
+        })
+
+    # Sort by percentile
+    stat_percentiles.sort(key=lambda x: x['percentile'], reverse=True)
+
+    # Get top N and bottom N
+    top_stats = stat_percentiles[:n]
+    bottom_stats = stat_percentiles[-n:][::-1]  # Reverse to show worst first
+
+    return {
+        'top_stats': top_stats,
+        'bottom_stats': bottom_stats,
+        'position': fbref_position,
+        'total_players': len(position_df)
+    }
+
+def create_position_radar_chart(df, player_name, category_name, stats, labels, position_label):
+    """Create a radar chart comparing player to all players at their position"""
+
+    # Filter to player
+    player_df = df[df['Player'] == player_name]
+
+    if len(player_df) == 0 or len(df) < 5:
+        return None
+
+    # Check if all stats exist
+    for stat in stats:
+        if stat not in df.columns:
+            return None
+
+    # Get player values
+    player_row = player_df.iloc[0]
+    player_values = []
+
+    for stat in stats:
+        # Get all position values for this stat
+        all_position_values = df[stat].fillna(0).values
+
+        # Calculate percentile rank (0-100) compared to all at position
+        player_val = player_row[stat] if pd.notna(player_row[stat]) else 0
+        percentile = (np.sum(all_position_values <= player_val) / len(all_position_values)) * 100
+        player_values.append(percentile)
+
+    # Position average at 50th percentile
+    position_avg = [50] * len(stats)
+
+    # Create figure
+    fig = go.Figure()
+
+    # Add position average (light blue)
+    fig.add_trace(go.Scatterpolar(
+        r=position_avg + [position_avg[0]],
+        theta=labels + [labels[0]],
+        fill='toself',
+        fillcolor='rgba(100, 149, 237, 0.2)',
+        line=dict(color='cornflowerblue', width=2),
+        name=f'{position_label} Average',
+        hovertemplate='%{theta}: 50th percentile<extra></extra>'
+    ))
+
+    # Add player (red)
+    fig.add_trace(go.Scatterpolar(
+        r=player_values + [player_values[0]],
+        theta=labels + [labels[0]],
+        fill='toself',
+        fillcolor='rgba(255, 0, 0, 0.1)',
+        line=dict(color='red', width=3),
+        name=player_name,
+        hovertemplate='%{theta}: %{r:.0f}th percentile<extra></extra>'
+    ))
+
+    # Update layout
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, 100],
+                tickvals=[25, 50, 75, 100],
+                ticktext=['25th', '50th', '75th', '100th']
+            )
+        ),
+        showlegend=True,
+        title=f"{category_name} vs All {position_label}s ({len(df)} players)",
         height=400
     )
 
@@ -523,23 +857,27 @@ def main():
         if player_age != 'N/A':
             age_factor = result.get('age_adjustment_factor', 1.0)
 
-            # Determine age status based on both age and factor
-            # Need to identify if low factor is due to youth or decline
+            # Determine age status based on factor
+            # Young players now get 1.00-1.05x (potential premium)
+            # Prime/Peak players get 1.05-1.20x
+            # Post-peak get 0.95-1.05x
+            # Declining get <0.95x
             if age_factor >= 1.15:
                 age_delta = "Peak Years"
                 age_delta_color = "normal"  # Green
             elif age_factor >= 1.05:
                 age_delta = "Prime"
                 age_delta_color = "normal"  # Green
+            elif age_factor >= 1.00:
+                # Young players with potential (1.00-1.05x)
+                age_delta = "Developing"
+                age_delta_color = "normal"  # Green (positive for young talent)
             elif age_factor >= 0.95:
+                # Post-peak but still valuable
                 age_delta = "Established"
                 age_delta_color = "off"  # Gray
-            elif player_age <= 23:
-                # Young player with lower factor = developing
-                age_delta = "Developing"
-                age_delta_color = "off"  # Gray (neutral for young)
             else:
-                # Older player with lower factor = declining
+                # Declining value (<0.95x)
                 age_delta = "Declining"
                 age_delta_color = "inverse"  # Red
         else:
@@ -742,13 +1080,25 @@ def main():
                     )
 
                 # Add MLS thresholds
+                # TAM threshold (silver)
                 fig_dist.add_vline(
                     x=683_750 / divisor,  # Max budget charge
                     line_dash="dot",
-                    line_color="gray",
-                    annotation_text="TAM Threshold",
-                    annotation_position="bottom left"
+                    line_color="silver",
+                    annotation_text="TAM",
+                    annotation_position="top"
                 )
+
+                # DP threshold (gold) - only if in scale
+                dp_threshold = 1_740_000  # 2025 DP threshold
+                if dp_threshold <= safe_max(max_pos_salary, final_salary if final_salary else 0):
+                    fig_dist.add_vline(
+                        x=dp_threshold / divisor,
+                        line_dash="dot",
+                        line_color="gold",
+                        annotation_text="DP",
+                        annotation_position="top"
+                    )
 
                 fig_dist.update_layout(
                     xaxis_title=axis_label,
@@ -946,63 +1296,100 @@ def main():
         # Radar Charts - Statistical Comparison
         st.header("Performance Profile")
 
-        # Get peer comparison data
+        # Get both peer and position comparison data
         peer_comparison = get_peer_comparison_data(system, selected_player, est['peer_names'][:5])
+        position_comparison = get_position_comparison_data(system, selected_player)
 
-        if peer_comparison:
+        if peer_comparison and position_comparison:
             comparison_df, stat_categories = peer_comparison
+            position_df, position_stat_categories, position_key = position_comparison
+
+            st.info(f"**Comparing against 5 statistical peers and all {position_key} players** with ≥270 minutes ({len(position_df)} total players)")
 
             # Create tabs for each category
             category_tabs = st.tabs(list(stat_categories.keys()))
 
             for tab, (category_name, category_info) in zip(category_tabs, stat_categories.items()):
                 with tab:
-                    # Create radar chart
-                    fig = create_radar_chart(
-                        comparison_df,
-                        selected_player,
-                        est['peer_names'][:5],
-                        category_name,
-                        category_info['stats'],
-                        category_info['labels']
-                    )
+                    # Create two columns for side-by-side radar charts
+                    col1, col2 = st.columns(2)
 
-                    if fig:
-                        st.plotly_chart(fig, use_container_width=True)
-                    else:
-                        st.info(f"Insufficient data for {category_name} comparison")
+                    with col1:
+                        st.markdown("##### vs Statistical Peers")
+                        # Create peer radar chart
+                        fig_peer = create_radar_chart(
+                            comparison_df,
+                            selected_player,
+                            est['peer_names'][:5],
+                            category_name,
+                            category_info['stats'],
+                            category_info['labels']
+                        )
 
-                    # Add numeric stat values table
-                    st.markdown(f"##### {category_name} - Numeric Values")
+                        if fig_peer:
+                            st.plotly_chart(fig_peer, use_container_width=True)
+                        else:
+                            st.info(f"Insufficient data for {category_name} peer comparison")
+
+                    with col2:
+                        st.markdown(f"##### vs All {position_key}s")
+                        # Create position-wide radar chart
+                        fig_position = create_position_radar_chart(
+                            position_df,
+                            selected_player,
+                            category_name,
+                            category_info['stats'],
+                            category_info['labels'],
+                            position_key
+                        )
+
+                        if fig_position:
+                            st.plotly_chart(fig_position, use_container_width=True)
+                        else:
+                            st.info(f"Insufficient data for {category_name} position comparison")
+
+                    # Add numeric stat values table for full position group
+                    st.markdown(f"##### {category_name} - Position Group Statistics")
 
                     # Get player row
-                    player_row = comparison_df[comparison_df['Player'] == selected_player]
+                    player_row = position_df[position_df['Player'] == selected_player]
 
                     if len(player_row) > 0:
                         player_row = player_row.iloc[0]
 
-                        # Build table data
+                        # Build table data using position group stats
                         table_data = []
                         for stat, label in zip(category_info['stats'], category_info['labels']):
-                            if stat in comparison_df.columns:
+                            if stat in position_df.columns:
                                 # Get player value
                                 player_val = player_row[stat] if pd.notna(player_row[stat]) else 0
 
-                                # Calculate percentiles among peers
-                                peer_values = comparison_df[comparison_df['Player'].isin(est['peer_names'][:5])][stat].fillna(0)
-                                all_values = list(peer_values) + [player_val]
+                                # Calculate percentiles for full position group
+                                position_values = position_df[stat].fillna(0)
+
+                                # 25th percentile
+                                percentile_25 = np.percentile(position_values, 25)
 
                                 # 50th percentile (median)
-                                percentile_50 = np.median(all_values)
+                                percentile_50 = np.percentile(position_values, 50)
+
+                                # 75th percentile
+                                percentile_75 = np.percentile(position_values, 75)
 
                                 # 100th percentile (max)
-                                percentile_100 = np.max(all_values)
+                                percentile_100 = np.max(position_values)
+
+                                # Player percentile rank
+                                player_percentile = (np.sum(position_values <= player_val) / len(position_values)) * 100
 
                                 table_data.append({
                                     'Stat': label,
-                                    'Player Value': f"{player_val:.2f}",
-                                    '50th Percentile': f"{percentile_50:.2f}",
-                                    '100th Percentile': f"{percentile_100:.2f}"
+                                    'Player': f"{player_val:.2f}",
+                                    'Percentile': f"{player_percentile:.0f}th",
+                                    '25th': f"{percentile_25:.2f}",
+                                    '50th': f"{percentile_50:.2f}",
+                                    '75th': f"{percentile_75:.2f}",
+                                    'Max': f"{percentile_100:.2f}"
                                 })
 
                         if table_data:
@@ -1013,13 +1400,87 @@ def main():
                                 hide_index=True,
                                 column_config={
                                     "Stat": st.column_config.TextColumn("Stat", width="medium"),
-                                    "Player Value": st.column_config.TextColumn("Player Value", width="small"),
-                                    "50th Percentile": st.column_config.TextColumn("50th Percentile", width="small"),
-                                    "100th Percentile": st.column_config.TextColumn("100th Percentile", width="small")
+                                    "Player": st.column_config.TextColumn("Player", width="small"),
+                                    "Percentile": st.column_config.TextColumn("Rank", width="small"),
+                                    "25th": st.column_config.TextColumn("25th %ile", width="small"),
+                                    "50th": st.column_config.TextColumn("50th %ile", width="small"),
+                                    "75th": st.column_config.TextColumn("75th %ile", width="small"),
+                                    "Max": st.column_config.TextColumn("Max", width="small")
                                 }
                             )
         else:
-            st.warning("Could not load peer comparison data")
+            st.warning("Could not load comparison data")
+
+        # Top and Bottom Statistics
+        st.header("Strengths & Weaknesses")
+
+        top_bottom = get_top_bottom_stats(system, selected_player, n=3)
+
+        if top_bottom:
+            st.info(f"Comparing all statistics vs {top_bottom['total_players']} {top_bottom['position']} players (FBref position) with ≥270 minutes")
+
+            # Create two columns
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.markdown("##### Top 3 Statistics")
+
+                # Create table for top stats
+                top_data = []
+                for stat_info in top_bottom['top_stats']:
+                    top_data.append({
+                        'Statistic': clean_stat_name(stat_info['stat']),
+                        'Value': f"{stat_info['player_value']:.2f}",
+                        'Rank': ordinal(stat_info['cardinal_rank']),
+                        'Position Median': f"{stat_info['position_median']:.2f}",
+                        'Position Max': f"{stat_info['position_max']:.2f}"
+                    })
+
+                if top_data:
+                    top_df = pd.DataFrame(top_data)
+                    st.dataframe(
+                        top_df,
+                        use_container_width=True,
+                        hide_index=True,
+                        column_config={
+                            "Statistic": st.column_config.TextColumn("Statistic", help=f"Compared to all {top_bottom['position']} players", width="medium"),
+                            "Value": st.column_config.TextColumn("Player", width="small"),
+                            "Rank": st.column_config.TextColumn("Rank", width="small"),
+                            "Position Median": st.column_config.TextColumn("Median", width="small"),
+                            "Position Max": st.column_config.TextColumn("Max", width="small")
+                        }
+                    )
+
+            with col2:
+                st.markdown("##### Bottom 3 Statistics")
+
+                # Create table for bottom stats
+                bottom_data = []
+                for stat_info in top_bottom['bottom_stats']:
+                    bottom_data.append({
+                        'Statistic': clean_stat_name(stat_info['stat']),
+                        'Value': f"{stat_info['player_value']:.2f}",
+                        'Rank': ordinal(stat_info['cardinal_rank']),
+                        'Position Median': f"{stat_info['position_median']:.2f}",
+                        'Position Max': f"{stat_info['position_max']:.2f}"
+                    })
+
+                if bottom_data:
+                    bottom_df = pd.DataFrame(bottom_data)
+                    st.dataframe(
+                        bottom_df,
+                        use_container_width=True,
+                        hide_index=True,
+                        column_config={
+                            "Statistic": st.column_config.TextColumn("Statistic", help=f"Compared to all {top_bottom['position']} players", width="medium"),
+                            "Value": st.column_config.TextColumn("Player", width="small"),
+                            "Rank": st.column_config.TextColumn("Rank", width="small"),
+                            "Position Median": st.column_config.TextColumn("Median", width="small"),
+                            "Position Max": st.column_config.TextColumn("Max", width="small")
+                        }
+                    )
+        else:
+            st.warning("Could not calculate top/bottom statistics")
 
         # Peer salary distribution - collapsible for advanced users
         with st.expander("View Peer Salary Distribution"):
@@ -1094,7 +1555,7 @@ def main():
     # Footer
     st.markdown("---")
     st.caption(
-        "**MLS Free Agent Valuator** | Data: 2025 Season | "
+        "**MLS Free Agent Valuator** | Per 90 Minutes | "
         "Model: K-Nearest Neighbors + Random Forest Classification | "
         f"Analyzing {len(fa_df)} free agents with contracts expiring in 2025"
     )

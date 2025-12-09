@@ -128,9 +128,10 @@ class PlayerValuationSystem:
 
         # Calculate adjustment factor
         if age < peaks['start']:
-            # Young player - potential but unproven (90-95% of peak value)
+            # Young player - value their potential and room to grow (100-105% of peak value)
+            # Closer to peak start = higher premium
             years_to_peak = peaks['start'] - age
-            factor = 0.90 + (0.05 * (1 - min(years_to_peak / 3, 1)))
+            factor = 1.00 + (0.05 * (1 - min(years_to_peak / 3, 1)))
 
         elif peaks['start'] <= age <= peaks['peak']:
             # Prime years - premium value (100-120%)
