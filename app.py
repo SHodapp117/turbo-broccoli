@@ -129,7 +129,55 @@ def clean_stat_name(stat_name):
         'Touches': 'Touches',
         'Carries': 'Carries',
         'Ball Recoveries': 'Ball Recoveries',
-        'Recov': 'Ball Recoveries'
+        'Recov': 'Ball Recoveries',
+
+        # Additional common abbreviations
+        'Ast': 'Assists',
+        'CK': 'Corner Kicks',
+        'Fls': 'Fouls Committed',
+        'Fld': 'Fouls Drawn',
+        'Off': 'Offsides',
+        'Offsides': 'Offsides',
+        'PKwon': 'Penalties Won',
+        'PKcon': 'Penalties Conceded',
+        'OG': 'Own Goals',
+        'CrdY': 'Yellow Cards',
+        'CrdR': 'Red Cards',
+        '2CrdY': 'Second Yellow Cards',
+        'Gls': 'Goals',
+        'PKatt': 'Penalty Kicks Attempted',
+        'PK': 'Penalty Kicks Made',
+        'PKA': 'Penalty Kicks Allowed',
+        '1/3': 'Passes into Final Third',
+        'PrgP': 'Progressive Passes',
+        'PrgR': 'Progressive Passes Received',
+        'Live': 'Live-Ball Passes',
+        'Dead': 'Dead-Ball Passes',
+        'TB': 'Through Balls',
+        'Sw': 'Switches',
+        'Crs': 'Crosses',
+        'Crosses': 'Crosses',
+        'TI': 'Throw-Ins',
+        'Press': 'Pressures',
+        'Def Pen': 'Defensive Penalty Area Touches',
+        'Def 3rd.1': 'Defensive 3rd Touches',
+        'Mid 3rd.1': 'Middle 3rd Touches',
+        'Att Pen': 'Attacking Penalty Area Touches',
+        'Att 3rd.1': 'Attacking 3rd Touches',
+
+        # Dribbling/Possession
+        'Tkld': 'Times Tackled',
+        'Tkld%': 'Tackled %',
+        'Rec': 'Passes Received',
+        'Dis': 'Distance Carried',
+        'TO': 'Turnovers',
+        'Thr': 'Passes Received Through Balls',
+
+        # Defensive variants
+        'Def': 'Defensive Actions',
+        'TklW': 'Tackles Won',
+        'Pass': 'Passes Allowed',
+        'Opp': 'Opponent Actions'
     }
 
     # Return mapped name if exists, otherwise return original
@@ -434,6 +482,16 @@ def get_top_bottom_stats(system, player_name, n=3):
                     'year_int', 'Age', 'Born', 'MP', 'Starts', 'Min', '90s']
     stat_cols = [col for col in numeric_cols if col not in exclude_cols]
 
+    # Remove duplicate column names (keep first occurrence)
+    # This handles cases where the same stat appears in multiple source files
+    seen = set()
+    unique_stat_cols = []
+    for col in stat_cols:
+        if col not in seen:
+            seen.add(col)
+            unique_stat_cols.append(col)
+    stat_cols = unique_stat_cols
+
     # Calculate percentile ranks for all stats
     stat_percentiles = []
     for stat in stat_cols:
@@ -675,14 +733,14 @@ def main():
     # Show additional premium options in expander
     with st.sidebar.expander("Additional Premiums"):
         championship_premium = st.checkbox(
-            "Championship Bonus",
+            "Pedigree",
             value=False,
-            help="Apply 5-15% premium for MLS Cup winners"
+            help="Apply 5-15% premium for hardware winners (MLS Cup, Supporters' Shield, Golden Boot, MVP, etc.)"
         )
 
         if championship_premium:
             champ_pct = st.slider(
-                "Championship Premium %",
+                "Pedigree Premium %",
                 min_value=5,
                 max_value=15,
                 value=10,
@@ -761,36 +819,36 @@ def main():
         # Show dropdown to select from filtered results
         st.header("Select Player to Value")
 
-        # Create a formatted list of players
-        player_options = []
-        for idx, row in filtered_df.iterrows():
-            option_text = f" (Option: {row['option_years']})" if pd.notna(row['option_years']) else ""
+    # Create a formatted list of players
+    player_options = []
+    for idx, row in filtered_df.iterrows():
+        option_text = f" (Option: {row['option_years']})" if pd.notna(row['option_years']) else ""
 
-            # Use roster number if no designation
-            if pd.notna(row['roster_designation']):
-                designation = row['roster_designation']
-            elif 'roster_number' in row and pd.notna(row['roster_number']):
-                designation = f"Roster #{int(row['roster_number'])}"
-            else:
-                designation = "N/A"
+        # Use roster number if no designation
+        if pd.notna(row['roster_designation']):
+            designation = row['roster_designation']
+        elif 'roster_number' in row and pd.notna(row['roster_number']):
+            designation = f"Roster #{int(row['roster_number'])}"
+        else:
+            designation = "N/A"
 
-            player_display = f"{row['name']} - {row['team']} ({designation}){option_text}"
-            player_options.append((row['name'], player_display))
+        player_display = f"{row['name']} - {row['team']} ({designation}){option_text}"
+        player_options.append((row['name'], player_display))
 
-        if len(player_options) == 0:
-            st.warning("No players match the selected filters. Please adjust your filters.")
-            st.stop()
+    if len(player_options) == 0:
+        st.warning("No players match the selected filters. Please adjust your filters.")
+        st.stop()
 
-        # Dropdown with formatted display
-        player_dict = dict(player_options)
-        selected_display = st.selectbox(
-            "Choose a free agent:",
-            options=list(player_dict.values()),
-            index=0
-        )
+    # Dropdown with formatted display
+    player_dict = dict(player_options)
+    selected_display = st.selectbox(
+        "Choose a free agent:",
+        options=list(player_dict.values()),
+        index=0
+    )
 
-        # Get actual player name
-        selected_player = [name for name, display in player_dict.items() if display == selected_display][0]
+    # Get actual player name
+    selected_player = [name for name, display in player_dict.items() if display == selected_display][0]
 
     if not selected_player:
         st.warning("No player selected")
@@ -943,10 +1001,10 @@ def main():
             else:
                 adjustments.append(f"Age Discount: -{abs(age_pct):.1f}% (Age {result.get('age', 'N/A')})")
 
-        # Apply championship premium
+        # Apply pedigree premium
         if championship_premium:
             final_salary *= (1 + champ_pct/100)
-            adjustments.append(f"Championship: +{champ_pct}%")
+            adjustments.append(f"Pedigree: +{champ_pct}%")
 
         # Apply breakout premium
         if breakout_premium:
@@ -1155,6 +1213,82 @@ def main():
                     st.write(f"**Cost:** {format_salary(tam_opt['tam_needed'])} TAM")
                     st.write(f"**Result:** {tam_opt['new_designation']} with {format_salary(tam_opt['new_budget_charge'])} charge")
                     st.write("This removes the DP tag while staying under the TAM threshold.")
+
+            # Contract Tier Benchmarks
+            st.markdown("##### Positional Contract Benchmarks")
+            st.caption("Closest players at this position by contract tier - showing the performance level needed for TAM/DP deals")
+
+            # Get position for filtering
+            position_key = result.get('granular_position') if pd.notna(result.get('granular_position')) else result['position']
+
+            # Filter to same position with salary data
+            if 'granular_position' in system.df_master.columns and pd.notna(result.get('granular_position')):
+                position_filter = system.df_master['granular_position'] == position_key
+            else:
+                position_filter = system.df_master['position_group'] == position_key
+
+            position_with_salary = system.df_master[
+                position_filter &
+                (system.df_master['base_salary'].notna()) &
+                (system.df_master['Minutes'] >= 270)
+            ].copy()
+
+            if len(position_with_salary) > 0:
+                # Define salary thresholds
+                TAM_THRESHOLD = 683_750
+                DP_THRESHOLD = 1_740_000
+
+                # Classify players by designation
+                position_with_salary['designation_tier'] = position_with_salary['base_salary'].apply(
+                    lambda x: 'DP' if x >= DP_THRESHOLD else ('TAM' if x >= TAM_THRESHOLD else 'Standard')
+                )
+
+                # Get closest TAM and DP player (by salary)
+                tam_players = position_with_salary[position_with_salary['designation_tier'] == 'TAM']
+                dp_players = position_with_salary[position_with_salary['designation_tier'] == 'DP']
+
+                benchmark_data = []
+
+                # Find closest TAM player (lowest TAM salary at position)
+                if len(tam_players) > 0:
+                    closest_tam = tam_players.nsmallest(1, 'base_salary').iloc[0]
+                    benchmark_data.append({
+                        'Tier': 'TAM',
+                        'Player': closest_tam['Player'],
+                        'Team': closest_tam.get('Squad', 'N/A'),
+                        'Salary': format_salary(closest_tam['base_salary']),
+                        'Minutes': f"{closest_tam['Minutes']:.0f}"
+                    })
+
+                # Find closest DP player (lowest DP salary at position)
+                if len(dp_players) > 0:
+                    closest_dp = dp_players.nsmallest(1, 'base_salary').iloc[0]
+                    benchmark_data.append({
+                        'Tier': 'DP',
+                        'Player': closest_dp['Player'],
+                        'Team': closest_dp.get('Squad', 'N/A'),
+                        'Salary': format_salary(closest_dp['base_salary']),
+                        'Minutes': f"{closest_dp['Minutes']:.0f}"
+                    })
+
+                if benchmark_data:
+                    benchmark_df = pd.DataFrame(benchmark_data)
+                    st.dataframe(
+                        benchmark_df,
+                        use_container_width=True,
+                        hide_index=True,
+                        column_config={
+                            "Tier": st.column_config.TextColumn("Tier", width="small", help="Contract designation"),
+                            "Player": st.column_config.TextColumn("Player", width="medium"),
+                            "Team": st.column_config.TextColumn("Team", width="medium"),
+                            "Salary": st.column_config.TextColumn("Salary", width="medium"),
+                            "Minutes": st.column_config.TextColumn("Minutes", width="small")
+                        }
+                    )
+                else:
+                    st.caption(f"No TAM or DP players found at {position_key} position")
+            else:
+                st.caption("Insufficient position data for benchmarks")
 
         # Current salary comparison
         if 'actual_salary' in result and result['actual_salary'] and final_salary is not None:
@@ -1379,13 +1513,14 @@ def main():
                                 # 100th percentile (max)
                                 percentile_100 = np.max(position_values)
 
-                                # Player percentile rank
-                                player_percentile = (np.sum(position_values <= player_val) / len(position_values)) * 100
+                                # Player cardinal rank (1st, 2nd, 3rd, etc.)
+                                # Rank by descending order (higher stat value = better rank)
+                                cardinal_rank = (position_values > player_val).sum() + 1
 
                                 table_data.append({
                                     'Stat': label,
                                     'Player': f"{player_val:.2f}",
-                                    'Percentile': f"{player_percentile:.0f}th",
+                                    'Rank': ordinal(cardinal_rank),
                                     '25th': f"{percentile_25:.2f}",
                                     '50th': f"{percentile_50:.2f}",
                                     '75th': f"{percentile_75:.2f}",
@@ -1401,7 +1536,7 @@ def main():
                                 column_config={
                                     "Stat": st.column_config.TextColumn("Stat", width="medium"),
                                     "Player": st.column_config.TextColumn("Player", width="small"),
-                                    "Percentile": st.column_config.TextColumn("Rank", width="small"),
+                                    "Rank": st.column_config.TextColumn("Rank", width="small"),
                                     "25th": st.column_config.TextColumn("25th %ile", width="small"),
                                     "50th": st.column_config.TextColumn("50th %ile", width="small"),
                                     "75th": st.column_config.TextColumn("75th %ile", width="small"),
