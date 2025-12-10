@@ -914,7 +914,7 @@ def main():
         st.info(f"Using {data_season} season data - Player has insufficient data in 2025 season")
 
     # Player info metrics - with age highlighted
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
 
     with col1:
         # Display granular position if available, with position_group as backup
@@ -993,6 +993,22 @@ def main():
         )
 
     with col4:
+        # Current compensation
+        current_salary = result.get('actual_salary')
+        if current_salary and current_salary > 0:
+            st.metric(
+                "Current Salary",
+                format_salary(current_salary),
+                help="2025 base salary"
+            )
+        else:
+            st.metric(
+                "Current Salary",
+                "N/A",
+                help="No salary data available"
+            )
+
+    with col5:
         if using_prior_season:
             season_delta = "Prior season"
             season_color = "inverse"  # Red warning
