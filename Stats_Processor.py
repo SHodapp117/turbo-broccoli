@@ -160,6 +160,7 @@ class StatsProcessor:
     def merge_stat_categories(self, season: int, categories: List[str]) -> pd.DataFrame:
         """
         Merge multiple stat categories for a single season
+        Position-aware: Only merges relevant stats for each position (GK vs outfield)
 
         Args:
             season: Year
@@ -190,8 +191,19 @@ class StatsProcessor:
         # Merge keys - use player, nation, position, team, age
         merge_keys = ['Player', 'Nation', 'Pos', 'Squad', 'Age', 'Born', 'Season']
 
-        # Merge remaining categories
-        for cat in categories:
+        # Split players by position
+        gk_mask = base_df['Pos'] == 'GK'
+        outfield_df = base_df[~gk_mask].copy()
+        gk_df = base_df[gk_mask].copy()
+
+        print(f"  Outfield players: {len(outfield_df)}, Goalkeepers: {len(gk_df)}")
+
+        # Define position-specific categories
+        outfield_categories = [cat for cat in categories if cat != 'goalkeeping']
+        gk_categories = ['standard', 'goalkeeping']  # GKs only get standard stats + GK-specific stats
+
+        # Merge outfield players with outfield stats
+        for cat in outfield_categories:
             if cat == base_category:
                 continue
 
@@ -199,14 +211,18 @@ class StatsProcessor:
             if df is None:
                 continue
 
+            # Filter to outfield players only
+            df_outfield = df[df['Pos'] != 'GK'].copy()
+            if len(df_outfield) == 0:
+                continue
+
             # Find columns to merge (exclude merge keys and duplicates)
-            # Keep merge keys, exclude columns already in base_df
-            cols_to_merge = merge_keys + [c for c in df.columns if c not in base_df.columns and c not in merge_keys]
-            df_to_merge = df[cols_to_merge]
+            cols_to_merge = merge_keys + [c for c in df_outfield.columns if c not in outfield_df.columns and c not in merge_keys]
+            df_to_merge = df_outfield[cols_to_merge]
 
             # Merge
-            before_count = len(base_df)
-            base_df = base_df.merge(
+            before_count = len(outfield_df)
+            outfield_df = outfield_df.merge(
                 df_to_merge,
                 on=merge_keys,
                 how='left',
@@ -215,12 +231,71 @@ class StatsProcessor:
 
             new_cols = len(cols_to_merge) - len(merge_keys)
 
-            if len(base_df) != before_count:
-                print(f"  WARNING: Merge with {cat} changed row count ({before_count} -> {len(base_df)})")
+            if len(outfield_df) != before_count:
+                print(f"  WARNING: Outfield merge with {cat} changed row count ({before_count} -> {len(outfield_df)})")
             else:
-                print(f"  Merged {cat} (+{new_cols} columns)")
+                print(f"  Merged outfield {cat} (+{new_cols} columns)")
+
+        # Merge goalkeepers with GK-specific stats only
+        for cat in gk_categories:
+            if cat == base_category or len(gk_df) == 0:
+                continue
+
+            df = self.load_stat_category(season, cat)
+            if df is None:
+                continue
+
+            # Filter to goalkeepers only
+            df_gk = df[df['Pos'] == 'GK'].copy()
+            if len(df_gk) == 0:
+                continue
+
+            # Find columns to merge (exclude merge keys and duplicates)
+            cols_to_merge = merge_keys + [c for c in df_gk.columns if c not in gk_df.columns and c not in merge_keys]
+            df_to_merge = df_gk[cols_to_merge]
+
+            # Merge
+            before_count = len(gk_df)
+            gk_df = gk_df.merge(
+                df_to_merge,
+                on=merge_keys,
+                how='left',
+                suffixes=('', f'_{cat}')
+            )
+
+            new_cols = len(cols_to_merge) - len(merge_keys)
+
+            if len(gk_df) != before_count:
+                print(f"  WARNING: GK merge with {cat} changed row count ({before_count} -> {len(gk_df)})")
+            else:
+                print(f"  Merged GK {cat} (+{new_cols} columns)")
+
+        # Remove duplicate columns (keep first occurrence)
+        outfield_df = outfield_df.loc[:, ~outfield_df.columns.duplicated()]
+        gk_df = gk_df.loc[:, ~gk_df.columns.duplicated()]
+
+        # Combine outfield and GK dataframes
+        # Fill missing columns with NaN for the position group that doesn't have them
+        all_columns = list(set(outfield_df.columns) | set(gk_df.columns))
+
+        # Add missing columns to outfield_df
+        for col in gk_df.columns:
+            if col not in outfield_df.columns:
+                outfield_df[col] = pd.NA
+
+        # Add missing columns to gk_df
+        for col in outfield_df.columns:
+            if col not in gk_df.columns:
+                gk_df[col] = pd.NA
+
+        # Ensure same column order
+        gk_df = gk_df[outfield_df.columns]
+
+        base_df = pd.concat([outfield_df, gk_df], ignore_index=True)
 
         print(f"  Final: {len(base_df)} rows, {len(base_df.columns)} columns")
+        print(f"    Outfield: {len(outfield_df)} rows, {len(outfield_df.columns)} columns")
+        print(f"    GK: {len(gk_df)} rows, {len(gk_df.columns)} columns")
 
         return base_df
 

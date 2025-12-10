@@ -482,11 +482,32 @@ def get_top_bottom_stats(system, player_name, n=3):
                     'year_int', 'Age', 'Born', 'MP', 'Starts', 'Min', '90s']
     stat_cols = [col for col in numeric_cols if col not in exclude_cols]
 
+    # Position-specific exclusions
+    if fbref_position == 'GK':
+        # Exclude outfield stats that don't apply to goalkeepers
+        gk_exclude = ['Gls', 'Ast', 'G+A', 'G-PK', 'PK', 'PKatt', 'xG', 'npxG', 'xAG', 'npxG+xAG',
+                      'Sh', 'SoT', 'SoT%', 'Sh/90', 'SoT/90', 'G/Sh', 'G/SoT', 'Dist',
+                      'FK', 'npxG/Sh', 'G-xG', 'np:G-xG', 'PrgC', 'PrgP', 'PrgR',
+                      'Tkl', 'TklW', 'Def 3rd', 'Mid 3rd', 'Att 3rd', 'Tkl.1', 'Att', 'Tkl%',
+                      'Lost', 'Blocks', 'Sh.1', 'Pass', 'Int', 'Tkl+Int', 'Clr', 'Err',
+                      'Touches', 'Def Pen', 'Att Pen', 'Live', 'Succ', 'Att.1', 'Succ%',
+                      'Tkld', 'Tkld%', 'Carries', 'TotDist', 'PrgDist', 'CPA', 'Mis', 'Dis',
+                      'Rec', 'SCA', 'SCA90', 'PassLive', 'PassDead', 'TO', 'Fld', 'Def',
+                      'GCA', 'GCA90', 'PassLive.1', 'PassDead.1', 'TO.1', 'Sh.2', 'Fld.1', 'Def.1',
+                      'CrdY', 'CrdR', '2CrdY', 'Fls', 'Off', 'PKwon', 'PKcon', 'OG', 'Recov',
+                      'Won', 'Lost.1', 'Won%']
+        stat_cols = [col for col in stat_cols if col not in gk_exclude]
+
     # Remove duplicate column names (keep first occurrence)
     # This handles cases where the same stat appears in multiple source files
+    # Also exclude columns with numeric suffixes like 'Cmp%.12' which are pandas duplicates
+    import re
     seen = set()
     unique_stat_cols = []
     for col in stat_cols:
+        # Skip columns with .N suffix (pandas duplicate indicators)
+        if re.search(r'\.\d+$', str(col)):
+            continue
         if col not in seen:
             seen.add(col)
             unique_stat_cols.append(col)
@@ -862,7 +883,14 @@ def main():
 
     if 'error' in result:
         st.error(f"Error: {result['error']}")
-        st.info("This player may not have enough playing time or statistical data for analysis.")
+
+        # Check if player exists in data at all
+        player_data = system.df_master[system.df_master['Player'] == selected_player]
+        if len(player_data) > 0:
+            player_minutes = player_data.iloc[0].get('Minutes', 0)
+            st.info(f"⚠️ This player has only {player_minutes:.0f} minutes of playing time. A minimum of 270 minutes (~3 full matches) is required for reliable statistical analysis and salary valuation.")
+        else:
+            st.info("⚠️ This player was not found in the FBref statistical database for the 2023-2025 seasons. They may not have appeared in any MLS matches during this period, or had insufficient playing time to be tracked.")
         return
 
     # Check if player is under the minutes threshold
@@ -1615,7 +1643,16 @@ def main():
                         }
                     )
         else:
-            st.warning("Could not calculate top/bottom statistics")
+            # Check why it failed
+            player_data = system.df_master[system.df_master['Player'] == selected_player]
+            if len(player_data) > 0:
+                player_minutes = player_data.iloc[0].get('Minutes', 0)
+                if player_minutes < 270:
+                    st.warning(f"⚠️ Insufficient playing time for statistical comparison. Player has {player_minutes:.0f} minutes (minimum 270 minutes required for reliable per-90 statistics).")
+                else:
+                    st.warning("Could not calculate top/bottom statistics - insufficient position data")
+            else:
+                st.warning("Player not found in statistical database")
 
         # Peer salary distribution - collapsible for advanced users
         with st.expander("View Peer Salary Distribution"):
