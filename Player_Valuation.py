@@ -603,11 +603,40 @@ class PlayerValuationSystem:
             ].copy()
             peer_level = 'position_group'
 
+        # If insufficient peers, try falling back to next designation tier down
         if len(df_peers) < 5:
-            return {
-                'error': f'Insufficient peer data ({len(df_peers)} players)',
-                'peers_found': len(df_peers)
-            }
+            fallback_tier = None
+            if designation == 'DP':
+                fallback_tier = 'TAM'
+            elif designation == 'TAM':
+                fallback_tier = 'Standard'
+
+            if fallback_tier:
+                print(f"\n⚠️ Insufficient {designation} peers ({len(df_peers)} found). Falling back to {fallback_tier} tier...")
+
+                # Try with fallback tier
+                df_peers = self.df_master[
+                    (self.df_master['position_group'] == position) &
+                    (self.df_master['designation_tier'] == fallback_tier) &
+                    (self.df_master['base_salary'].notna()) &
+                    (self.df_master['Minutes'] >= 900)
+                ].copy()
+
+                if len(df_peers) >= 5:
+                    peer_level = f'{fallback_tier}_fallback'
+                    print(f"✓ Found {len(df_peers)} {fallback_tier} peers for comparison")
+                else:
+                    return {
+                        'error': f'Insufficient peer data even with {fallback_tier} fallback ({len(df_peers)} players)',
+                        'peers_found': len(df_peers),
+                        'original_designation': designation,
+                        'attempted_fallback': fallback_tier
+                    }
+            else:
+                return {
+                    'error': f'Insufficient peer data ({len(df_peers)} players)',
+                    'peers_found': len(df_peers)
+                }
 
         # Features for similarity - use granular position features if available
         feature_cols = self._get_features_for_position(position, granular_position)
@@ -629,7 +658,7 @@ class PlayerValuationSystem:
         peer_players = df_peers.iloc[indices[0]]
         peer_salaries = peer_players['base_salary'].values
 
-        return {
+        result = {
             'predicted_salary': np.median(peer_salaries),
             'salary_range_low': np.percentile(peer_salaries, 25),
             'salary_range_high': np.percentile(peer_salaries, 75),
@@ -638,9 +667,19 @@ class PlayerValuationSystem:
             'n_peers': len(peer_players),
             'peer_names': peer_players['Player'].tolist()[:5],  # Top 5 most similar
             'peer_salaries': peer_salaries[:5].tolist(),
-            'peer_level': peer_level,  # 'granular_position' or 'position_group'
+            'peer_level': peer_level,  # 'granular_position', 'position_group', or 'TAM_fallback'
             'features_used': available_features  # Track which features were used for comparison
         }
+
+        # Add fallback info if using lower tier
+        if '_fallback' in peer_level:
+            result['used_fallback'] = True
+            result['original_designation'] = designation
+            result['fallback_tier'] = peer_level.replace('_fallback', '')
+        else:
+            result['used_fallback'] = False
+
+        return result
 
     def value_player(self, player_name: str) -> Dict:
         """
@@ -740,6 +779,30 @@ class PlayerValuationSystem:
         salary_est = self.estimate_salary_range(player_with_prediction)
         result['salary_estimate'] = salary_est
 
+        # Parse age from FBref format (e.g., "26-329" = 26 years, 329 days)
+        # Do this regardless of salary estimation success
+        age_value = player.get('Age', '27')
+        if pd.notna(age_value):
+            # Extract just the year portion (before the hyphen)
+            age_str = str(age_value).split('-')[0]
+            try:
+                player_age = int(age_str)
+            except ValueError:
+                player_age = 27  # Default if parsing fails
+        else:
+            player_age = 27
+
+        # Store age in result
+        result['age'] = player_age
+
+        # Calculate age adjustment factor
+        age_factor = self._get_age_adjustment_factor(
+            player_age,
+            position,
+            player.get('granular_position') if pd.notna(player.get('granular_position')) else None
+        )
+        result['age_adjustment_factor'] = age_factor
+
         if 'error' not in salary_est:
             print(f"\nEstimated Salary Range (Base Statistical Model):")
             print(f"  Median: ${salary_est['predicted_salary']/1000:.0f}K")
@@ -758,22 +821,7 @@ class PlayerValuationSystem:
             for i, (name, salary) in enumerate(zip(salary_est['peer_names'], salary_est['peer_salaries']), 1):
                 print(f"  {i}. {name}: ${salary/1000:.0f}K")
 
-            # Apply age adjustment - parse age from FBref format (e.g., "26-329" = 26 years, 329 days)
-            age_value = player.get('Age', '27')
-            if pd.notna(age_value):
-                # Extract just the year portion (before the hyphen)
-                age_str = str(age_value).split('-')[0]
-                try:
-                    player_age = int(age_str)
-                except ValueError:
-                    player_age = 27  # Default if parsing fails
-            else:
-                player_age = 27
-            age_factor = self._get_age_adjustment_factor(
-                player_age,
-                position,
-                player.get('granular_position') if pd.notna(player.get('granular_position')) else None
-            )
+            # Apply age adjustment
 
             age_adjusted_salary = salary_est['predicted_salary'] * age_factor
             age_adjusted_low = salary_est['salary_range_low'] * age_factor
@@ -784,9 +832,7 @@ class PlayerValuationSystem:
             print(f"  Recommended Salary: ${age_adjusted_salary/1000:.0f}K")
             print(f"  Adjusted Range: ${age_adjusted_low/1000:.0f}K - ${age_adjusted_high/1000:.0f}K")
 
-            # Store age-adjusted values
-            result['age'] = player_age
-            result['age_adjustment_factor'] = age_factor
+            # Store age-adjusted salary values
             result['age_adjusted_salary'] = age_adjusted_salary
             result['age_adjusted_range_low'] = age_adjusted_low
             result['age_adjusted_range_high'] = age_adjusted_high

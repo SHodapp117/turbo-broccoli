@@ -394,11 +394,11 @@ def create_radar_chart(df, player_name, peer_names, category_name, stats, labels
 
     for stat in stats:
         # Combine player and peers for this stat
-        all_values = list(peers_df[stat].fillna(0)) + [player_row[stat] if pd.notna(player_row[stat]) else 0]
+        all_values = np.array(list(peers_df[stat].fillna(0)) + [player_row[stat] if pd.notna(player_row[stat]) else 0])
 
         # Calculate percentile rank (0-100)
         player_val = player_row[stat] if pd.notna(player_row[stat]) else 0
-        percentile = (sum(all_values <= player_val) / len(all_values)) * 100
+        percentile = (np.sum(all_values <= player_val) / len(all_values)) * 100
         player_values.append(percentile)
 
     # Get average peer values (as percentile)
@@ -1029,6 +1029,47 @@ def main():
         st.markdown("---")
         st.header("Contract Recommendation")
 
+    elif 'salary_estimate' in result and 'error' in result['salary_estimate']:
+        # Handle case where salary estimation failed
+        st.markdown("---")
+        st.header("Valuation Analysis")
+
+        error_msg = result['salary_estimate']['error']
+        peers_found = result['salary_estimate'].get('peers_found', 0)
+
+        st.warning(f"⚠️ {error_msg}")
+        st.info(f"This player's predicted designation/position combination has limited comparable players in the database ({peers_found} found, minimum 5 required for statistical analysis).")
+
+        # Still show predicted designation
+        if 'predicted_designation' in result:
+            st.subheader("Predicted Player Designation")
+            st.metric("Designation Tier", result['predicted_designation'])
+
+            if 'designation_confidence' in result:
+                st.write("**Prediction Confidence:**")
+                conf_df = pd.DataFrame([
+                    {'Tier': tier, 'Probability': f"{prob:.1%}"}
+                    for tier, prob in result['designation_confidence'].items()
+                ]).sort_values('Probability', ascending=False)
+                st.dataframe(conf_df, hide_index=True, use_container_width=True)
+
+        st.markdown("---")
+        st.info("💡 **Recommendation:** Consider comparing to similar players manually or adjusting position/designation filters to find comparable players.")
+        return  # Exit early since we can't show salary recommendations
+
+    else:
+        st.error("Unable to generate salary estimation")
+        return
+
+    if 'salary_estimate' in result and 'predicted_salary' in result['salary_estimate']:
+        est = result['salary_estimate']
+
+        # Check if using fallback tier
+        if est.get('used_fallback', False):
+            original_tier = est.get('original_designation', 'N/A')
+            fallback_tier = est.get('fallback_tier', 'N/A')
+            st.info(f"ℹ️ **Note:** Using {fallback_tier} tier comparables due to limited {original_tier} peers at this position. Salary estimates are based on top {fallback_tier} players with similar statistical profiles.")
+
         # Calculate adjusted salary based on toggles
         base_salary = est['predicted_salary']
         final_salary = base_salary
@@ -1036,41 +1077,45 @@ def main():
 
         # Apply age adjustment if enabled
         if apply_age_adjustment and 'age_adjusted_salary' in result:
-            final_salary = result['age_adjusted_salary']
             age_factor = result.get('age_adjustment_factor', 1.0)
             age_pct = (age_factor - 1) * 100
+            final_salary = base_salary * age_factor
             # Show discount vs premium properly
             if age_pct >= 0:
                 adjustments.append(f"Age Premium: +{age_pct:.1f}% (Age {result.get('age', 'N/A')})")
             else:
                 adjustments.append(f"Age Discount: -{abs(age_pct):.1f}% (Age {result.get('age', 'N/A')})")
 
-        # Apply pedigree premium
+        # Apply pedigree premium (to base, not final)
         if championship_premium:
-            final_salary *= (1 + champ_pct/100)
+            final_salary = final_salary + (base_salary * champ_pct/100)
             adjustments.append(f"Pedigree: +{champ_pct}%")
 
-        # Apply breakout premium
+        # Apply breakout premium (to base, not final)
         if breakout_premium:
-            final_salary *= (1 + breakout_pct/100)
+            final_salary = final_salary + (base_salary * breakout_pct/100)
             adjustments.append(f"Breakout Season: +{breakout_pct}%")
 
         # Calculate adjusted range
+        base_range_low = est.get('salary_range_low')
+        base_range_high = est.get('salary_range_high')
+
         if apply_age_adjustment and 'age_adjusted_range_low' in result:
             adj_low = result['age_adjusted_range_low']
             adj_high = result['age_adjusted_range_high']
         else:
-            adj_low = est.get('salary_range_low')
-            adj_high = est.get('salary_range_high')
+            adj_low = base_range_low
+            adj_high = base_range_high
 
         # Apply same premiums to range (only if values exist)
-        if adj_low is not None and adj_high is not None:
+        # Each premium applies to the BASE range, not the adjusted range
+        if adj_low is not None and adj_high is not None and base_range_low is not None and base_range_high is not None:
             if championship_premium:
-                adj_low *= (1 + champ_pct/100)
-                adj_high *= (1 + champ_pct/100)
+                adj_low = adj_low + (base_range_low * champ_pct/100)
+                adj_high = adj_high + (base_range_high * champ_pct/100)
             if breakout_premium:
-                adj_low *= (1 + breakout_pct/100)
-                adj_high *= (1 + breakout_pct/100)
+                adj_low = adj_low + (base_range_low * breakout_pct/100)
+                adj_high = adj_high + (base_range_high * breakout_pct/100)
 
         # Main salary section
         col1, col2 = st.columns([3, 2])
